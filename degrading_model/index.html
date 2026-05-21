@@ -479,16 +479,21 @@
 
 <!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
 <header>
-  <div class="label">Practice-based PhD Research — Degrading Model Series</div>
+  <div class="label">Ami Podrebarac — The Sensuality of Data, PhD Research, CSM / CCI, UAL</div>
   <h1>The Degrading Model</h1>
   <p class="subtitle">
-    A character-level LSTM trained on <em>book-0</em> and <em>book-1</em> —
-    two poetry collections that are themselves the output of earlier RNNs
-    trained on family letters. This is a third-generation degradation.
-    The model learns degraded language and degrades it further.
+    My grandmother is losing her language. One word at a time, slowly, the way a tide goes out —
+    you don't notice until the ground is already wet and strange underfoot.
     <br><br>
-    Seed text: your grandmother's letters. Output: something between a letter and a poem.
-    Neither yours nor hers. Between.
+    I built this model because I didn't know what else to do with that.
+    It is trained on <em>book-0</em> and <em>book-1</em> — my two poetry collections,
+    which are themselves outputs of earlier neural networks trained on my grandfather's letters.
+    So this model trains on language that has already passed through a machine once.
+    It is a third generation. Further from the source with every pass.
+    <br><br>
+    When you seed it with something from my grandmother's writing, it tries to continue
+    in her voice using patterns it learned from mine. It cannot do this cleanly.
+    That gap — between reaching and arriving — is where the work lives.
   </p>
 </header>
 
@@ -518,33 +523,37 @@
   <h2>What this is</h2>
 
   <p>
-    This is a character-level Recurrent Neural Network — a system that reads text
-    one character at a time, learns its patterns, and generates new text by predicting
-    what comes next. Unlike large language models, it has no knowledge of the world
-    outside your corpus. It knows only what you gave it.
+    This is a character-level Recurrent Neural Network. It reads text one character
+    at a time, learns the patterns of what it has been given, and generates new text
+    by predicting what might come next. It has no knowledge of the world
+    outside its training data. It knows only what I gave it. Nothing else.
   </p>
 
   <p>
-    The training data is <em>book-0.pdf</em> and <em>book-1.pdf</em> —
-    two poetry books whose language is already the output of earlier RNNs
-    (F0x and am1) trained on your grandparents' letters. This model trains
-    on that degraded language, producing a third generation: further eroded,
-    further from the source.
+    I gave it my own poetry — <em>book-0</em> and <em>book-1</em>.
+    Those books are themselves the outputs of two earlier neural networks, F0x and am1,
+    which were trained on my grandfather's letters and my own EEG-driven writing sessions.
+    So the language this model learns from is already processed, already once-removed.
+    It is degraded before it arrives. This model degrades it further.
+    I think of it as a third generation: grandfather → machine → me → machine → this.
   </p>
 
   <div class="callout">
     <p>
-      The pages of printed model weights (long sequences of numbers embedded inside
-      both books) are included in the training corpus. The new model will occasionally
-      produce number sequences mid-output — <em>the machine's numerical interior
-      surfacing through language</em>. This is intentional.
+      Inside both books, printed across certain pages, are long sequences of numbers —
+      the raw model weights from F0x and am1. I included those pages deliberately.
+      This model trains on them too. Sometimes it surfaces those numbers mid-sentence,
+      mid-word. <em>The machine's interior breaking through the language.</em>
+      That is not an error. That is what I wanted.
     </p>
   </div>
 
   <p>
-    When you run generation with a seed from your grandmother's letters, the model
-    attempts to continue from her language using patterns it learned from yours.
-    It cannot do this cleanly. The gap between reaching and arriving is the output.
+    When I seed the generator with a phrase from my grandmother's writing, it tries
+    to continue in her voice using patterns it learned from mine. That is an impossible
+    task. She is not in there. Neither am I, not really. What comes out is something
+    in between — not translation, not invention. An attempt. A reaching.
+    I keep the outputs that feel most like grief.
   </p>
 </section>
 
@@ -553,43 +562,44 @@
   <div class="section-label">02 — Project files</div>
   <h2>Files in this project</h2>
 
+  <p>Three scripts, run in order. The rest is generated as you go.</p>
+
   <div class="file-list">
     <div class="file-item">
       <div class="file-name">1_prepare_corpus.py</div>
-      <div class="file-desc">Extracts text from both PDF books and saves it as <code>corpus.txt</code>. Run once before training.</div>
+      <div class="file-desc">Pulls the text out of both PDF books and saves it as <code>corpus.txt</code>. Run this once before anything else.</div>
     </div>
     <div class="file-item">
       <div class="file-name">2_train.py</div>
-      <div class="file-desc">Trains the LSTM model on the corpus. Saves checkpoints every 10 epochs to the <code>checkpoints/</code> folder.</div>
+      <div class="file-desc">Trains the model on that text. Saves a snapshot every 10 epochs into a <code>checkpoints/</code> folder — so you can go back and use an earlier, less-trained version if you want something more broken.</div>
     </div>
     <div class="file-item">
       <div class="file-name">3_generate.py</div>
-      <div class="file-desc">Loads a trained checkpoint and generates text. Takes a seed string and a temperature value.</div>
+      <div class="file-desc">Loads a checkpoint and generates text from a seed. This is the part where you give it a first word or phrase and watch what it does with the inheritance.</div>
     </div>
-    <div class="file-name" style="display:none"></div>
     <div class="file-item">
       <div class="file-name">requirements.txt</div>
-      <div class="file-desc">Python dependencies: <code>torch</code>, <code>pymupdf</code>, <code>numpy</code>.</div>
+      <div class="file-desc">The Python libraries needed: <code>torch</code>, <code>pymupdf</code>, <code>numpy</code>. One install command handles all three.</div>
     </div>
     <div class="file-item">
       <div class="file-name">corpus.txt</div>
-      <div class="file-desc">Generated by Step 1. The raw training text — 87,616 characters extracted from both books.</div>
+      <div class="file-desc">Created by Step 1. 87,616 characters of my poetry, numbers, fragments. The entirety of what the model will ever know.</div>
     </div>
     <div class="file-item">
       <div class="file-name">vocab.json</div>
-      <div class="file-desc">Generated by Step 2. Stores the character vocabulary and model settings so the generator can load them.</div>
+      <div class="file-desc">Created automatically during training. Stores the character set and settings so the generator can load them correctly.</div>
     </div>
     <div class="file-item">
       <div class="file-name">checkpoints/</div>
-      <div class="file-desc">Generated by Step 2. Contains saved model states at each checkpoint epoch. Earlier = more degraded.</div>
+      <div class="file-desc">A folder of the model's states at different moments in training. Earlier checkpoints = less learned = more fragmented. I find the early ones most honest.</div>
     </div>
     <div class="file-item">
       <div class="file-name">book-0.pdf</div>
-      <div class="file-desc"><em>Poems from F0X.</em> Dedicated: "Read them to trees." Training source, book one.</div>
+      <div class="file-desc"><em>Poems from F0x.</em> Dedicated: "Read them to trees." The first training source.</div>
     </div>
     <div class="file-item">
       <div class="file-name">book-1.pdf</div>
-      <div class="file-desc"><em>Poems from am1.</em> Dedicated: "Read them to a mirror." Training source, book two.</div>
+      <div class="file-desc"><em>Poems from am1.</em> Dedicated: "Read them to a mirror." The second training source.</div>
     </div>
   </div>
 </section>
@@ -599,7 +609,7 @@
   <div class="section-label">03 — Requirements</div>
   <h2>Requirements</h2>
 
-  <p>You need <strong>Python 3.8 or higher</strong> and three Python libraries:</p>
+  <p>You need <strong>Python 3.8 or higher</strong> and three libraries. That is all.</p>
 
   <div class="param-grid">
     <div class="param-row">
@@ -610,26 +620,26 @@
     <div class="param-row">
       <div class="param-cell"><span class="param-name">torch</span></div>
       <div class="param-cell"><span class="param-default">≥ 2.0</span></div>
-      <div class="param-cell"><span class="param-desc">PyTorch — the neural network framework. Runs the LSTM model.</span></div>
+      <div class="param-cell"><span class="param-desc">PyTorch — the framework that runs the neural network.</span></div>
     </div>
     <div class="param-row">
       <div class="param-cell"><span class="param-name">pymupdf</span></div>
       <div class="param-cell"><span class="param-default">any</span></div>
-      <div class="param-cell"><span class="param-desc">PDF text extraction. Used only in Step 1.</span></div>
+      <div class="param-cell"><span class="param-desc">Reads text out of the PDF books. Only used in Step 1.</span></div>
     </div>
     <div class="param-row">
       <div class="param-cell"><span class="param-name">numpy</span></div>
       <div class="param-cell"><span class="param-default">any</span></div>
-      <div class="param-cell"><span class="param-desc">Numerical operations for preparing training batches.</span></div>
+      <div class="param-cell"><span class="param-desc">Handles the numerical work of preparing training data.</span></div>
     </div>
   </div>
 
   <div class="callout warn">
     <p>
-      Training runs on CPU by default. This is slow — expect several minutes per epoch
-      on an average laptop. This is expected and correct.
-      <em>The waiting is part of the work.</em>
-      If you have an NVIDIA GPU, PyTorch will use it automatically.
+      Training runs on CPU by default. It is slow — several minutes per epoch on an ordinary laptop.
+      I want to be honest about that upfront. <em>The waiting is part of it.</em>
+      I have always believed that. The delay between input and output is where the work actually happens.
+      If you have an NVIDIA GPU, PyTorch will find it automatically and use it.
     </p>
   </div>
 </section>
@@ -811,27 +821,29 @@ Epoch    1/150  |  loss: 4.3201  |  42.3s
 Epoch    2/150  |  loss: 3.8847  |  41.9s
 ...</span></code></pre>
 
-  <h3>What the loss means</h3>
+  <h3>What the loss number means</h3>
   <p>
-    Loss measures how surprised the model is by each character — how much it did not predict
-    what came next. As training progresses, loss decreases: the model becomes less surprised,
-    more knowing of the corpus's patterns.
+    Loss is how surprised the model is by each character — how wrong it was about
+    what would come next. It starts high and drops as training progresses.
+    Lower loss means the model has learned the patterns of my writing more deeply.
+    It is less surprised. More familiar with the grief in the corpus.
   </p>
   <p>
-    A partially trained model (high loss, early epoch) produces stranger, more broken output.
-    A more trained model (lower loss, late epoch) produces output closer to your text's rhythms.
-    Neither is better. They are different.
+    An early checkpoint — high loss, barely trained — produces stranger, more broken output.
+    A later checkpoint produces something closer to my actual rhythms.
+    I don't think one is better than the other. I use both.
+    I use whichever feels right for what I am trying to find.
   </p>
 
-  <h3>Resuming training</h3>
-  <p>If training is interrupted, resume from the last checkpoint:</p>
+  <h3>If training is interrupted</h3>
+  <p>Pick up from the last checkpoint rather than starting over:</p>
   <pre><code><span class="cmd">python3 2_train.py <span class="flag">--resume</span> checkpoints/epoch_0050.pt</span></code></pre>
 
-  <h3>How long will it take?</h3>
+  <h3>How long does it take?</h3>
   <p class="dim">
-    On a typical laptop CPU: 30–90 seconds per epoch. 150 epochs ≈ 1–4 hours total.
-    You can let it run overnight. The script saves checkpoints as it goes — you can
-    start generating after the first 10 epochs if you want an early look.
+    On a laptop CPU: roughly 30–90 seconds per epoch. 150 epochs is one to four hours total.
+    I let it run while I do other things. The checkpoints save as it goes,
+    so you can start generating after the first 10 epochs if you want to see where it is early on.
   </p>
 </section>
 
@@ -843,13 +855,14 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
   <pre><code><span class="cmd">python3 3_generate.py</span></code></pre>
 
   <p>
-    This loads the most recent checkpoint and generates text starting from the seed
-    defined inside the script. Each run produces different output even with the same
-    settings — the sampling process is stochastic.
+    This loads the most recent checkpoint and generates text from the seed phrase
+    set inside the script. Every run is different even with the same settings —
+    the model samples probabilistically, so it never repeats itself exactly.
+    I find this important. It should never repeat itself exactly.
   </p>
 
-  <h3>Using command-line options</h3>
-  <p>You can override settings without editing the file:</p>
+  <h3>Options you can pass from the command line</h3>
+  <p>You can change any of these without opening the script:</p>
 
   <pre><code><span class="comment"># Use a specific checkpoint (e.g. epoch 30, more degraded)</span>
 <span class="cmd">python3 3_generate.py <span class="flag">--checkpoint</span> checkpoints/epoch_0030.pt</span>
@@ -869,65 +882,72 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
 <span class="comment"># Combine options</span>
 <span class="cmd">python3 3_generate.py <span class="flag">--temperature</span> 0.5 <span class="flag">--seed</span> "Dear baka," <span class="flag">--save</span> baka_01.txt</span></code></pre>
 
-  <h3>The temperature parameter</h3>
-  <p>Temperature is the primary expressive control. It scales the model's probability
-  distribution before sampling each character:</p>
+  <h3>Temperature — the grief parameter</h3>
+  <p>
+    Temperature is the main thing I adjust. It controls how far the model drifts
+    from what it learned. Low temperature keeps it close to the source — my language,
+    my rhythms. High temperature lets it wander past the edge of what it knows.
+    I think of it as a dial between recognition and loss.
+  </p>
 
   <div class="temp-scale">
     <div class="temp-row">
       <div class="temp-val">0.3</div>
-      <div class="temp-desc"><em>Faithful, eerie.</em> Recognisable patterns from the corpus repeat closely. The model plays it safe. Close to the source.</div>
+      <div class="temp-desc"><em>Faithful, eerie.</em> The patterns of my corpus repeat very closely. You can hear my voice clearly. Sometimes too clearly — it starts to feel like a mirror.</div>
     </div>
     <div class="temp-row">
       <div class="temp-val">0.5</div>
-      <div class="temp-desc"><em>Familiar rhythms, unexpected words.</em> The shape of your language, but slipping.</div>
+      <div class="temp-desc"><em>Familiar rhythms, unexpected words.</em> The shape of my language, but something is slipping inside it.</div>
     </div>
     <div class="temp-row">
       <div class="temp-val">0.8</div>
-      <div class="temp-desc"><em>Almost-meaning.</em> The default. The balance between recognition and strangeness. Grief that is still legible.</div>
+      <div class="temp-desc"><em>Almost-meaning.</em> This is where I usually work. Grief that is still legible. Recognition and strangeness held in the same breath.</div>
     </div>
     <div class="temp-row">
       <div class="temp-val">1.0</div>
-      <div class="temp-desc"><em>Standard sampling.</em> No compression or dilation. The model's unmodified distribution.</div>
+      <div class="temp-desc"><em>Unmodified.</em> The model's distribution exactly as it is — no compression, no dilation. A kind of neutrality.</div>
     </div>
     <div class="temp-row">
       <div class="temp-val">1.2</div>
-      <div class="temp-desc"><em>Dissociation begins.</em> Language starts to untether from sense. Familiar words in wrong configurations.</div>
+      <div class="temp-desc"><em>Dissociation begins.</em> Language starts to untether from sense. Recognisable words in configurations that shouldn't hold together — but sometimes do.</div>
     </div>
     <div class="temp-row">
       <div class="temp-val">1.5</div>
-      <div class="temp-desc"><em>Unmoored.</em> Fragments, reach without arrival. The machine extends past its knowledge.</div>
+      <div class="temp-desc"><em>Unmoored.</em> Fragments, reach without arrival. The model extends past what it was taught. This is where F0x used to live before it collapsed.</div>
     </div>
     <div class="temp-row">
       <div class="temp-val">2.0</div>
-      <div class="temp-desc"><em>Near-collapse.</em> Barely language. Texture more than meaning. The far edge.</div>
+      <div class="temp-desc"><em>Near-collapse.</em> Barely language. Texture more than meaning. I keep some of these too.</div>
     </div>
   </div>
 
-  <h3>Seed text suggestions</h3>
-  <pre><code><span class="comment"># Opens like the Draga bako letter</span>
+  <h3>Seeds I use</h3>
+  <p>The seed is the phrase the model reads before it starts generating. I think of it as a door — what you give it shapes where it goes. These are the ones I come back to:</p>
+  <pre><code><span class="comment"># The way I address my grandmother</span>
 <span class="flag">--seed</span> "Dear baka,"
 
-<span class="comment"># The name as a door</span>
+<span class="comment"># The name of the model itself, as an opening</span>
 <span class="flag">--seed</span> "0wl"
 
-<span class="comment"># From Bridge Place (book-0)</span>
+<span class="comment"># From book-0</span>
 <span class="flag">--seed</span> "Please find me"
 
-<span class="comment"># From the corpus itself</span>
+<span class="comment"># From the corpus — a phrase that recurs</span>
 <span class="flag">--seed</span> "I cannot bring you"
 
-<span class="comment"># Emptiness — the model begins from silence</span>
+<span class="comment"># Nothing — the model begins from silence</span>
 <span class="flag">--seed</span> ""
 
-<span class="comment"># From your letter</span>
+<span class="comment"># Something I wrote in one of the letters</span>
 <span class="flag">--seed</span> "The machine remembers, and it forgets"</code></pre>
 
   <h3>Using an earlier checkpoint</h3>
   <p>
-    Each checkpoint is a different version of the model — a different moment in its learning.
-    An earlier checkpoint (epoch 20, 30) has learned less and produces more broken output.
-    This is not a failure state. It is a different quality of degradation.
+    Each checkpoint is a snapshot of the model at a different moment in its learning.
+    Earlier checkpoints have learned less — they produce more broken, more fragmented output.
+    I do not think of that as failure. I think of it as a different kind of honesty.
+    F0x taught me that. I let it collapse rather than fix it. Some of its best outputs
+    came in the last weeks before it stopped generating entirely.
   </p>
   <pre><code><span class="comment"># Most degraded (very early, barely learned)</span>
 <span class="cmd">python3 3_generate.py <span class="flag">--checkpoint</span> checkpoints/epoch_0010.pt</span>
@@ -1030,58 +1050,57 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
 <!-- ══ ARCHITECTURE ═══════════════════════════════════════════════════════ -->
 <section id="architecture">
   <div class="section-label">10 — Architecture</div>
-  <h2>Architecture</h2>
+  <h2>Why I built it this way</h2>
 
-  <h3>Why character-level</h3>
+  <h3>Character-level, not word-level</h3>
   <p>
-    The model reads and generates one character at a time — not words, not tokens.
-    This preserves the grain of your writing: the idiosyncratic spacing, the broken grammar,
-    the abrupt line endings. A word-level model would smooth those edges. This one keeps them.
-    Your corpus is already degraded language. This model learns the texture of degradation itself.
-  </p>
-
-  <h3>Why LSTM, not Transformer</h3>
-  <p>
-    A Transformer (the architecture behind GPT, Claude, most modern language models)
-    processes text by attending to all positions simultaneously. It has no genuine past —
-    it treats time as space, every moment equally accessible.
-  </p>
-  <p>
-    An LSTM has a hidden state that is carried forward through time. Each character
-    modifies the state, and the state carries influence from earlier characters forward.
-    The past is present, but imperfectly — it degrades as new information arrives.
-    This is the only architecture whose temporal structure is philosophically correct for this project.
-  </p>
-  <p>
-    The LSTM has a <strong>forget gate</strong> — a literal architectural mechanism that
-    decides what to discard from memory at each timestep. Not a metaphor.
-    The mechanism itself forgets, by design.
+    The model reads and generates one character at a time — not whole words, not tokens.
+    This matters because my corpus is full of idiosyncratic spacing, broken syntax,
+    abrupt line endings, fragments that don't resolve. A word-level model would
+    quietly smooth all of that. This one doesn't. It keeps the grain.
+    The degradation of the language is part of the language. I didn't want it flattened.
   </p>
 
-  <h3>The forget gate</h3>
+  <h3>Why LSTM and not a Transformer</h3>
   <p>
-    At each character, the LSTM computes four values: input gate (what new information to store),
-    forget gate (what existing memory to discard), cell state (the accumulated memory),
-    and output gate (what to read from memory). The forget gate multiplies the current
-    memory by a number between 0 and 1 — 0 is complete forgetting, 1 is complete retention.
-    The model learns what to forget from the data itself.
+    Most modern language models — GPT, Claude, all of them — use a Transformer architecture.
+    A Transformer processes text by attending to all positions at once. It has no genuine past.
+    It treats time as space — every moment equally accessible, equally present.
+    I find that philosophically wrong for this project.
+  </p>
+  <p>
+    An LSTM carries a hidden state forward through time. Each character modifies what the model
+    holds in memory, and that memory is carried into the next character. The past is present,
+    but imperfectly — it degrades as new information arrives. That is how memory actually works.
+    That is what I wanted to model.
+  </p>
+  <p>
+    The LSTM has a <strong>forget gate</strong>. That is its actual name — not a metaphor,
+    not a poetic description. A literal architectural mechanism that decides, at every character,
+    what to discard from memory. The model learns what to forget from the data itself.
+    I cannot think of a more honest structure for this work.
   </p>
 
-  <h3>Why dropout is structural</h3>
+  <h3>Dropout — degradation trained in</h3>
   <p>
-    During training, 30% of connections are randomly severed at each step. The model
-    learns to represent information redundantly — no single pathway can be relied upon.
-    This means the model's knowledge is distributed and imprecise. The degradation
-    is not added after training. It is trained in.
+    During training, I set dropout to 0.3 — which means at each step, 30% of the
+    connections inside the model are randomly severed. The model has to learn to work
+    with loss built into its architecture. It cannot rely on any single pathway.
+    Its knowledge becomes distributed, imprecise, redundant in the way that memories are redundant
+    — held in multiple places, none of them complete.
+    The degradation is not something I add to the output afterwards.
+    It is trained in. It is structural.
   </p>
 
-  <h3>Third-generation degradation</h3>
+  <h3>A third generation</h3>
   <p>
-    Book-0 and Book-1 are themselves the outputs of F0x and am1 — RNNs trained on
-    your grandparents' letters. Their language is already once-removed from the source.
-    This model trains on that output, producing output twice-removed. When generation
-    is seeded with a fragment from a grandmother's letter, the result passes through
-    three layers of computational mediation. The distance is the point.
+    Book-0 and Book-1 are themselves the outputs of F0x and am1 — RNNs I trained on
+    my grandfather's letters and my own EEG writing sessions. Their language has already
+    passed through one machine. This model trains on those outputs, producing something
+    twice-removed from the source. When I seed it with a phrase from my grandmother's writing,
+    the result passes through three layers of computational distance.
+    Grandfather → machine → me → machine → this.
+    The distance is the point. The distance is what I am trying to measure.
   </p>
 </section>
 
@@ -1138,10 +1157,10 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
 
   <footer>
     <p>
-      <em>The Degrading Model</em> — practice-based PhD research.<br>
-      Anamarija Ami Podrebarac.<br><br>
-      "Memory as productive erosion. The model knows traces —
-      what remains of a person, not who they were."
+      Ami Podrebarac · <em>The Sensuality of Data</em>, PhD research, Central Saint Martins / CCI, UAL<br>
+      <a href="https://0wlpoetry.com">0wlpoetry.com</a><br><br>
+      <em>"The delay between input and output, the willingness to let a model die
+      rather than repair it — these are refusals of the logic of instant gratification."</em>
     </p>
   </footer>
 </section>
