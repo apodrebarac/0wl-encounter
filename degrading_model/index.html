@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Degrading Model — Documentation</title>
+  <style>
+
+    /* ── TYPEFACES ───────────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400&display=swap');
+
+    /* ── BASE ────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e0e0e;
+      --bg-card:   #151515;
+      --bg-code:   #1a1a1a;
+      --border:    #2a2a2a;
+      --text:      #d4cfc8;
+      --text-dim:  #7a7570;
+      --text-faint:#3f3c39;
+      --accent:    #c8b89a;
+      --accent2:   #8a9bb0;
+      --warn:      #b09080;
+      --line:      #252525;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.75;
+      padding: 0;
+    }
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 2rem 8rem;
+    }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    header {
+      padding: 6rem 2rem 4rem;
+      max-width: 820px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2.8rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--accent);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    header .subtitle {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      max-width: 560px;
+    }
+
+    header .subtitle em {
+      color: var(--text);
+      font-style: italic;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    nav {
+      padding: 2.5rem 2rem;
+      max-width: 820px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .nav-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 1rem;
+    }
+
+    nav ol {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    nav ol li a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    nav ol li a:hover { color: var(--accent); }
+
+    nav ol li .nav-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-faint);
+      margin-right: 0.8rem;
+    }
+
+    /* ── SECTIONS ────────────────────────────────────────────── */
+    section {
+      padding-top: 5rem;
+    }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 1.2rem;
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      line-height: 1.3;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      font-style: normal;
+      color: var(--text);
+      margin: 2.5rem 0 0.8rem;
+      letter-spacing: 0.01em;
+    }
+
+    h4 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin: 2rem 0 0.6rem;
+    }
+
+    p {
+      margin-bottom: 1.1rem;
+      color: var(--text);
+    }
+
+    p.dim { color: var(--text-dim); font-size: 0.95rem; }
+
+    /* ── CODE ────────────────────────────────────────────────── */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82em;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.1em 0.4em;
+      color: var(--accent);
+    }
+
+    pre {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.4rem 1.6rem;
+      overflow-x: auto;
+      margin: 1.2rem 0 1.8rem;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.83rem;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    pre code .comment {
+      color: var(--text-faint);
+    }
+
+    pre code .cmd {
+      color: var(--accent);
+    }
+
+    pre code .flag {
+      color: var(--accent2);
+    }
+
+    /* ── PARAMETER TABLE ─────────────────────────────────────── */
+    .param-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1.2rem 0 2rem;
+    }
+
+    .param-row {
+      display: grid;
+      grid-template-columns: 200px 90px 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .param-row:last-child { border-bottom: none; }
+
+    .param-row:first-child {
+      background: var(--bg-code);
+    }
+
+    .param-cell {
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      border-right: 1px solid var(--line);
+    }
+
+    .param-cell:last-child { border-right: none; }
+
+    .param-row:first-child .param-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .param-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
+    .param-default {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent2);
+      text-align: center;
+    }
+
+    .param-desc {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* ── TEMPERATURE SCALE ───────────────────────────────────── */
+    .temp-scale {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1.2rem 0 2rem;
+    }
+
+    .temp-row {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      border-bottom: 1px solid var(--line);
+      align-items: start;
+    }
+
+    .temp-row:last-child { border-bottom: none; }
+
+    .temp-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent2);
+      padding: 0.7rem 1rem;
+      border-right: 1px solid var(--line);
+    }
+
+    .temp-desc {
+      padding: 0.7rem 1rem;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .temp-desc em { color: var(--text); font-style: italic; }
+
+    /* ── CALLOUT ─────────────────────────────────────────────── */
+    .callout {
+      border-left: 2px solid var(--accent);
+      padding: 1rem 1.4rem;
+      margin: 1.5rem 0;
+      background: var(--bg-card);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .callout p { margin: 0; font-size: 0.95rem; color: var(--text-dim); }
+    .callout p em { color: var(--text); font-style: italic; }
+
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.warn p { color: var(--text-dim); }
+
+    /* ── OS TABS ─────────────────────────────────────────────── */
+    .os-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
+    }
+
+    .os-tab {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      color: var(--text-dim);
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: none;
+      margin-bottom: -1px;
+      border-radius: 3px 3px 0 0;
+      transition: color 0.2s;
+    }
+
+    .os-tab.active {
+      color: var(--accent);
+      border-color: var(--border);
+      background: var(--bg-code);
+    }
+
+    .os-panel {
+      display: none;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .os-panel.active { display: block; }
+
+    .os-panel pre {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0.4rem 0;
+    }
+
+    .os-panel pre code {
+      font-size: 0.83rem;
+    }
+
+    /* ── STEP LIST ───────────────────────────────────────────── */
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-faint);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 1.8rem;
+      height: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.2rem;
+    }
+
+    .steps li .step-content h4 {
+      margin-top: 0;
+    }
+
+    /* ── FILE LIST ───────────────────────────────────────────── */
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1.2rem 0 2rem;
+    }
+
+    .file-item {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .file-item:last-child { border-bottom: none; }
+
+    .file-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--accent);
+      padding: 0.85rem 1rem;
+      border-right: 1px solid var(--line);
+      background: var(--bg-code);
+    }
+
+    .file-desc {
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ── DIVIDER ─────────────────────────────────────────────── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 4rem 0 0;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      padding: 3rem 0 2rem;
+      color: var(--text-faint);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    footer em { color: var(--text-dim); font-style: italic; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      header h1 { font-size: 2rem; }
+      .param-row { grid-template-columns: 1fr; }
+      .param-cell { border-right: none; border-bottom: 1px solid var(--line); }
+      .param-row:first-child { display: none; }
+      .file-item { grid-template-columns: 1fr; }
+      .file-name { border-right: none; border-bottom: 1px solid var(--line); }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
+<header>
+  <div class="label">Practice-based PhD Research — Degrading Model Series</div>
+  <h1>The Degrading Model</h1>
+  <p class="subtitle">
+    A character-level LSTM trained on <em>book-0</em> and <em>book-1</em> —
+    two poetry collections that are themselves the output of earlier RNNs
+    trained on family letters. This is a third-generation degradation.
+    The model learns degraded language and degrades it further.
+    <br><br>
+    Seed text: your grandmother's letters. Output: something between a letter and a poem.
+    Neither yours nor hers. Between.
+  </p>
+</header>
+
+<!-- ══ NAV ═══════════════════════════════════════════════════════════════ -->
+<nav>
+  <div class="nav-label">Contents</div>
+  <ol>
+    <li><span class="nav-num">01</span><a href="#what">What this is</a></li>
+    <li><span class="nav-num">02</span><a href="#files">Files in this project</a></li>
+    <li><span class="nav-num">03</span><a href="#requirements">Requirements</a></li>
+    <li><span class="nav-num">04</span><a href="#setup-mac">Setup — macOS</a></li>
+    <li><span class="nav-num">05</span><a href="#setup-pc">Setup — Windows</a></li>
+    <li><span class="nav-num">06</span><a href="#step1">Step 1 — Prepare corpus</a></li>
+    <li><span class="nav-num">07</span><a href="#step2">Step 2 — Train</a></li>
+    <li><span class="nav-num">08</span><a href="#step3">Step 3 — Generate</a></li>
+    <li><span class="nav-num">09</span><a href="#parameters">All parameters explained</a></li>
+    <li><span class="nav-num">10</span><a href="#architecture">Architecture</a></li>
+    <li><span class="nav-num">11</span><a href="#troubleshooting">Troubleshooting</a></li>
+  </ol>
+</nav>
+
+<div class="page">
+
+<!-- ══ WHAT ══════════════════════════════════════════════════════════════ -->
+<section id="what">
+  <div class="section-label">01 — Overview</div>
+  <h2>What this is</h2>
+
+  <p>
+    This is a character-level Recurrent Neural Network — a system that reads text
+    one character at a time, learns its patterns, and generates new text by predicting
+    what comes next. Unlike large language models, it has no knowledge of the world
+    outside your corpus. It knows only what you gave it.
+  </p>
+
+  <p>
+    The training data is <em>book-0.pdf</em> and <em>book-1.pdf</em> —
+    two poetry books whose language is already the output of earlier RNNs
+    (F0x and am1) trained on your grandparents' letters. This model trains
+    on that degraded language, producing a third generation: further eroded,
+    further from the source.
+  </p>
+
+  <div class="callout">
+    <p>
+      The pages of printed model weights (long sequences of numbers embedded inside
+      both books) are included in the training corpus. The new model will occasionally
+      produce number sequences mid-output — <em>the machine's numerical interior
+      surfacing through language</em>. This is intentional.
+    </p>
+  </div>
+
+  <p>
+    When you run generation with a seed from your grandmother's letters, the model
+    attempts to continue from her language using patterns it learned from yours.
+    It cannot do this cleanly. The gap between reaching and arriving is the output.
+  </p>
+</section>
+
+<!-- ══ FILES ══════════════════════════════════════════════════════════════ -->
+<section id="files">
+  <div class="section-label">02 — Project files</div>
+  <h2>Files in this project</h2>
+
+  <div class="file-list">
+    <div class="file-item">
+      <div class="file-name">1_prepare_corpus.py</div>
+      <div class="file-desc">Extracts text from both PDF books and saves it as <code>corpus.txt</code>. Run once before training.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">2_train.py</div>
+      <div class="file-desc">Trains the LSTM model on the corpus. Saves checkpoints every 10 epochs to the <code>checkpoints/</code> folder.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">3_generate.py</div>
+      <div class="file-desc">Loads a trained checkpoint and generates text. Takes a seed string and a temperature value.</div>
+    </div>
+    <div class="file-name" style="display:none"></div>
+    <div class="file-item">
+      <div class="file-name">requirements.txt</div>
+      <div class="file-desc">Python dependencies: <code>torch</code>, <code>pymupdf</code>, <code>numpy</code>.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">corpus.txt</div>
+      <div class="file-desc">Generated by Step 1. The raw training text — 87,616 characters extracted from both books.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">vocab.json</div>
+      <div class="file-desc">Generated by Step 2. Stores the character vocabulary and model settings so the generator can load them.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">checkpoints/</div>
+      <div class="file-desc">Generated by Step 2. Contains saved model states at each checkpoint epoch. Earlier = more degraded.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">book-0.pdf</div>
+      <div class="file-desc"><em>Poems from F0X.</em> Dedicated: "Read them to trees." Training source, book one.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">book-1.pdf</div>
+      <div class="file-desc"><em>Poems from am1.</em> Dedicated: "Read them to a mirror." Training source, book two.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REQUIREMENTS ═══════════════════════════════════════════════════════ -->
+<section id="requirements">
+  <div class="section-label">03 — Requirements</div>
+  <h2>Requirements</h2>
+
+  <p>You need <strong>Python 3.8 or higher</strong> and three Python libraries:</p>
+
+  <div class="param-grid">
+    <div class="param-row">
+      <div class="param-cell">Library</div>
+      <div class="param-cell">Version</div>
+      <div class="param-cell">Purpose</div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">torch</span></div>
+      <div class="param-cell"><span class="param-default">≥ 2.0</span></div>
+      <div class="param-cell"><span class="param-desc">PyTorch — the neural network framework. Runs the LSTM model.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">pymupdf</span></div>
+      <div class="param-cell"><span class="param-default">any</span></div>
+      <div class="param-cell"><span class="param-desc">PDF text extraction. Used only in Step 1.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">numpy</span></div>
+      <div class="param-cell"><span class="param-default">any</span></div>
+      <div class="param-cell"><span class="param-desc">Numerical operations for preparing training batches.</span></div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <p>
+      Training runs on CPU by default. This is slow — expect several minutes per epoch
+      on an average laptop. This is expected and correct.
+      <em>The waiting is part of the work.</em>
+      If you have an NVIDIA GPU, PyTorch will use it automatically.
+    </p>
+  </div>
+</section>
+
+<!-- ══ SETUP MAC ══════════════════════════════════════════════════════════ -->
+<section id="setup-mac">
+  <div class="section-label">04 — Setup</div>
+  <h2>Setup — macOS</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <h4>Check Python is installed</h4>
+        <p>Open Terminal (Applications → Utilities → Terminal) and run:</p>
+        <pre><code><span class="cmd">python3 --version</span></code></pre>
+        <p class="dim">You should see <code>Python 3.x.x</code>. If you see an error, download Python from <code>python.org</code> and install it.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Navigate to the project folder</h4>
+        <pre><code><span class="cmd">cd /Users/anamarijapodrebarac/0wl-encounter/degrading_model</span></code></pre>
+        <p class="dim">Or drag the folder onto the Terminal window after typing <code>cd </code> (with a space).</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>(Recommended) Create a virtual environment</h4>
+        <p>This keeps the project's libraries separate from everything else on your machine:</p>
+        <pre><code><span class="cmd">python3 -m venv venv</span>
+<span class="cmd">source venv/bin/activate</span></code></pre>
+        <p class="dim">Your terminal prompt will change to show <code>(venv)</code>. You'll need to run <code>source venv/bin/activate</code> again each time you open a new Terminal window for this project.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Install dependencies</h4>
+        <pre><code><span class="cmd">pip install -r requirements.txt</span></code></pre>
+        <p class="dim">This installs PyTorch, PyMuPDF, and NumPy. May take a few minutes on first run.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Verify installation</h4>
+        <pre><code><span class="cmd">python3 -c "import torch; import fitz; import numpy; print('ready')"</span></code></pre>
+        <p class="dim">Should print <code>ready</code>. If you see an error, see Troubleshooting below.</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<!-- ══ SETUP PC ═══════════════════════════════════════════════════════════ -->
+<section id="setup-pc">
+  <div class="section-label">05 — Setup</div>
+  <h2>Setup — Windows</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <h4>Install Python</h4>
+        <p>Download from <code>python.org/downloads</code> and run the installer.
+        <strong>Important:</strong> on the first screen of the installer, check the box
+        that says <em>"Add Python to PATH"</em> before clicking Install.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Open Command Prompt or PowerShell</h4>
+        <p>Press <code>Win + R</code>, type <code>cmd</code>, press Enter. Or search for "Command Prompt" in the Start menu.</p>
+        <p class="dim">PowerShell also works — the commands below are the same in both.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Navigate to the project folder</h4>
+        <pre><code><span class="cmd">cd C:\path\to\degrading_model</span></code></pre>
+        <p class="dim">Replace <code>C:\path\to\degrading_model</code> with the actual path.
+        You can find this by right-clicking the folder in Explorer → Properties → Location.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>(Recommended) Create a virtual environment</h4>
+        <pre><code><span class="cmd">python -m venv venv</span>
+<span class="cmd">venv\Scripts\activate</span></code></pre>
+        <p class="dim">Your prompt will show <code>(venv)</code>. Run <code>venv\Scripts\activate</code> again each time you open a new Command Prompt for this project.</p>
+        <p class="dim">If you see a permissions error on the activate step, run this first:
+        <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code></p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Install dependencies</h4>
+        <pre><code><span class="cmd">pip install -r requirements.txt</span></code></pre>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Verify installation</h4>
+        <pre><code><span class="cmd">python -c "import torch; import fitz; import numpy; print('ready')"</span></code></pre>
+        <p class="dim">Should print <code>ready</code>.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="callout warn">
+    <p>
+      On Windows, use <code>python</code> instead of <code>python3</code> in all commands below.
+    </p>
+  </div>
+</section>
+
+<!-- ══ STEP 1 ══════════════════════════════════════════════════════════════ -->
+<section id="step1">
+  <div class="section-label">06 — Step 1</div>
+  <h2>Prepare the corpus</h2>
+
+  <p>
+    This extracts all text from <code>book-0.pdf</code> and <code>book-1.pdf</code>
+    and saves it as <code>corpus.txt</code>. Run it once — you won't need to run it again
+    unless you change the source PDFs.
+  </p>
+
+  <pre><code><span class="cmd">python3 1_prepare_corpus.py</span></code></pre>
+
+  <p>You should see output like:</p>
+
+  <pre><code><span class="comment">Extracting corpus from poetry books...
+
+Reading: book-0.pdf
+  → 43,810 characters extracted
+Reading: book-1.pdf
+  → 43,799 characters extracted
+
+Total characters: 87,616
+Unique characters (vocabulary size): 85
+
+Corpus ready. Run 2_train.py next.</span></code></pre>
+
+  <div class="callout">
+    <p>
+      The extraction includes the pages of numbers printed inside both books —
+      the model weights from F0x and am1. <em>The new model will learn those too.</em>
+    </p>
+  </div>
+
+  <h3>If something goes wrong</h3>
+  <p class="dim">
+    If you see <code>ERROR: Cannot find book-0.pdf</code>, check that the PDFs are in
+    the parent folder (<code>0wl-encounter/</code>) and that <code>1_prepare_corpus.py</code>
+    is in <code>0wl-encounter/degrading_model/</code>.
+  </p>
+</section>
+
+<!-- ══ STEP 2 ══════════════════════════════════════════════════════════════ -->
+<section id="step2">
+  <div class="section-label">07 — Step 2</div>
+  <h2>Train the model</h2>
+
+  <pre><code><span class="cmd">python3 2_train.py</span></code></pre>
+
+  <p>
+    Training will run for <strong>150 epochs</strong> by default, printing loss after each one.
+    A checkpoint is saved every 10 epochs inside the <code>checkpoints/</code> folder.
+  </p>
+
+  <pre><code><span class="comment">Training device: cpu
+Running on CPU. Training will be slow. This is expected.
+
+Model parameters: 1,096,277
+
+Settings:
+  Hidden size:     256  (memory capacity)
+  Layers:          2
+  Dropout:         0.3  (degradation rate)
+  ...
+
+Epoch    1/150  |  loss: 4.3201  |  42.3s
+Epoch    2/150  |  loss: 3.8847  |  41.9s
+...</span></code></pre>
+
+  <h3>What the loss means</h3>
+  <p>
+    Loss measures how surprised the model is by each character — how much it did not predict
+    what came next. As training progresses, loss decreases: the model becomes less surprised,
+    more knowing of the corpus's patterns.
+  </p>
+  <p>
+    A partially trained model (high loss, early epoch) produces stranger, more broken output.
+    A more trained model (lower loss, late epoch) produces output closer to your text's rhythms.
+    Neither is better. They are different.
+  </p>
+
+  <h3>Resuming training</h3>
+  <p>If training is interrupted, resume from the last checkpoint:</p>
+  <pre><code><span class="cmd">python3 2_train.py <span class="flag">--resume</span> checkpoints/epoch_0050.pt</span></code></pre>
+
+  <h3>How long will it take?</h3>
+  <p class="dim">
+    On a typical laptop CPU: 30–90 seconds per epoch. 150 epochs ≈ 1–4 hours total.
+    You can let it run overnight. The script saves checkpoints as it goes — you can
+    start generating after the first 10 epochs if you want an early look.
+  </p>
+</section>
+
+<!-- ══ STEP 3 ══════════════════════════════════════════════════════════════ -->
+<section id="step3">
+  <div class="section-label">08 — Step 3</div>
+  <h2>Generate text</h2>
+
+  <pre><code><span class="cmd">python3 3_generate.py</span></code></pre>
+
+  <p>
+    This loads the most recent checkpoint and generates text starting from the seed
+    defined inside the script. Each run produces different output even with the same
+    settings — the sampling process is stochastic.
+  </p>
+
+  <h3>Using command-line options</h3>
+  <p>You can override settings without editing the file:</p>
+
+  <pre><code><span class="comment"># Use a specific checkpoint (e.g. epoch 30, more degraded)</span>
+<span class="cmd">python3 3_generate.py <span class="flag">--checkpoint</span> checkpoints/epoch_0030.pt</span>
+
+<span class="comment"># Change the temperature</span>
+<span class="cmd">python3 3_generate.py <span class="flag">--temperature</span> 1.2</span>
+
+<span class="comment"># Change the seed text</span>
+<span class="cmd">python3 3_generate.py <span class="flag">--seed</span> "0wl"</span>
+
+<span class="comment"># Generate more characters</span>
+<span class="cmd">python3 3_generate.py <span class="flag">--length</span> 1200</span>
+
+<span class="comment"># Save output to a file</span>
+<span class="cmd">python3 3_generate.py <span class="flag">--save</span> output_01.txt</span>
+
+<span class="comment"># Combine options</span>
+<span class="cmd">python3 3_generate.py <span class="flag">--temperature</span> 0.5 <span class="flag">--seed</span> "Dear baka," <span class="flag">--save</span> baka_01.txt</span></code></pre>
+
+  <h3>The temperature parameter</h3>
+  <p>Temperature is the primary expressive control. It scales the model's probability
+  distribution before sampling each character:</p>
+
+  <div class="temp-scale">
+    <div class="temp-row">
+      <div class="temp-val">0.3</div>
+      <div class="temp-desc"><em>Faithful, eerie.</em> Recognisable patterns from the corpus repeat closely. The model plays it safe. Close to the source.</div>
+    </div>
+    <div class="temp-row">
+      <div class="temp-val">0.5</div>
+      <div class="temp-desc"><em>Familiar rhythms, unexpected words.</em> The shape of your language, but slipping.</div>
+    </div>
+    <div class="temp-row">
+      <div class="temp-val">0.8</div>
+      <div class="temp-desc"><em>Almost-meaning.</em> The default. The balance between recognition and strangeness. Grief that is still legible.</div>
+    </div>
+    <div class="temp-row">
+      <div class="temp-val">1.0</div>
+      <div class="temp-desc"><em>Standard sampling.</em> No compression or dilation. The model's unmodified distribution.</div>
+    </div>
+    <div class="temp-row">
+      <div class="temp-val">1.2</div>
+      <div class="temp-desc"><em>Dissociation begins.</em> Language starts to untether from sense. Familiar words in wrong configurations.</div>
+    </div>
+    <div class="temp-row">
+      <div class="temp-val">1.5</div>
+      <div class="temp-desc"><em>Unmoored.</em> Fragments, reach without arrival. The machine extends past its knowledge.</div>
+    </div>
+    <div class="temp-row">
+      <div class="temp-val">2.0</div>
+      <div class="temp-desc"><em>Near-collapse.</em> Barely language. Texture more than meaning. The far edge.</div>
+    </div>
+  </div>
+
+  <h3>Seed text suggestions</h3>
+  <pre><code><span class="comment"># Opens like the Draga bako letter</span>
+<span class="flag">--seed</span> "Dear baka,"
+
+<span class="comment"># The name as a door</span>
+<span class="flag">--seed</span> "0wl"
+
+<span class="comment"># From Bridge Place (book-0)</span>
+<span class="flag">--seed</span> "Please find me"
+
+<span class="comment"># From the corpus itself</span>
+<span class="flag">--seed</span> "I cannot bring you"
+
+<span class="comment"># Emptiness — the model begins from silence</span>
+<span class="flag">--seed</span> ""
+
+<span class="comment"># From your letter</span>
+<span class="flag">--seed</span> "The machine remembers, and it forgets"</code></pre>
+
+  <h3>Using an earlier checkpoint</h3>
+  <p>
+    Each checkpoint is a different version of the model — a different moment in its learning.
+    An earlier checkpoint (epoch 20, 30) has learned less and produces more broken output.
+    This is not a failure state. It is a different quality of degradation.
+  </p>
+  <pre><code><span class="comment"># Most degraded (very early, barely learned)</span>
+<span class="cmd">python3 3_generate.py <span class="flag">--checkpoint</span> checkpoints/epoch_0010.pt</span>
+
+<span class="comment"># Mid-training — between learning and forgetting</span>
+<span class="cmd">python3 3_generate.py <span class="flag">--checkpoint</span> checkpoints/epoch_0060.pt</span>
+
+<span class="comment"># Most formed (latest checkpoint)</span>
+<span class="cmd">python3 3_generate.py</span>  <span class="comment"># uses the most recent automatically</span></code></pre>
+</section>
+
+<!-- ══ ALL PARAMETERS ═════════════════════════════════════════════════════ -->
+<section id="parameters">
+  <div class="section-label">09 — Reference</div>
+  <h2>All parameters explained</h2>
+
+  <h3>Training parameters <code>(2_train.py)</code></h3>
+  <p class="dim">Edit these directly inside the SETTINGS section at the top of the file.</p>
+
+  <div class="param-grid">
+    <div class="param-row">
+      <div class="param-cell">Parameter</div>
+      <div class="param-cell">Default</div>
+      <div class="param-cell">What it does</div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">HIDDEN_SIZE</span></div>
+      <div class="param-cell"><span class="param-default">256</span></div>
+      <div class="param-cell"><span class="param-desc">Memory capacity. How many numbers the model uses to hold its understanding of what it has read. Smaller = more forgetting. Try 128 (more degraded) or 512 (more faithful).</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">NUM_LAYERS</span></div>
+      <div class="param-cell"><span class="param-default">2</span></div>
+      <div class="param-cell"><span class="param-desc">Depth of memory. Two LSTM layers stacked. Layer 1 learns local character patterns, Layer 2 learns higher-level rhythm and structure.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">DROPOUT</span></div>
+      <div class="param-cell"><span class="param-default">0.3</span></div>
+      <div class="param-cell"><span class="param-desc">Rate of degradation during training. At each step, 30% of connections are randomly severed. The model learns to work with loss built in. 0.0 = no degradation. 0.5 = heavy degradation.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">SEQUENCE_LENGTH</span></div>
+      <div class="param-cell"><span class="param-default">100</span></div>
+      <div class="param-cell"><span class="param-desc">How many characters the model reads at once. Shorter = more fragmented context, more surprising leaps. Longer = more coherent patterns learned.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">NUM_EPOCHS</span></div>
+      <div class="param-cell"><span class="param-default">150</span></div>
+      <div class="param-cell"><span class="param-desc">Total training passes through the data. More = more learned. Checkpoints every 10 epochs let you access intermediate states.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">LEARNING_RATE</span></div>
+      <div class="param-cell"><span class="param-default">0.002</span></div>
+      <div class="param-cell"><span class="param-desc">Step size during learning. Leave at default unless training is unstable (loss fluctuates wildly) — then try 0.001.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">BATCH_SIZE</span></div>
+      <div class="param-cell"><span class="param-default">32</span></div>
+      <div class="param-cell"><span class="param-desc">Sequences trained simultaneously. Higher = faster but uses more memory. 16 if your machine is slow, 64 if it is fast.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">SAVE_EVERY</span></div>
+      <div class="param-cell"><span class="param-default">10</span></div>
+      <div class="param-cell"><span class="param-desc">Save a checkpoint every N epochs. Lower = more checkpoints, more intermediate states available.</span></div>
+    </div>
+  </div>
+
+  <h3>Generation parameters <code>(3_generate.py)</code></h3>
+  <p class="dim">Edit these directly in the SETTINGS section, or pass them as command-line flags.</p>
+
+  <div class="param-grid">
+    <div class="param-row">
+      <div class="param-cell">Parameter</div>
+      <div class="param-cell">Default</div>
+      <div class="param-cell">What it does</div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">TEMPERATURE</span></div>
+      <div class="param-cell"><span class="param-default">0.8</span></div>
+      <div class="param-cell"><span class="param-desc">The grief parameter. Controls divergence from learned patterns. 0.3 = faithful. 0.8 = almost-meaning. 1.5 = dissociation. See the temperature scale above.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">SEED_TEXT</span></div>
+      <div class="param-cell"><span class="param-default">"Dear baka,"</span></div>
+      <div class="param-cell"><span class="param-desc">The opening the model reads before generating. Any string. The model builds hidden state from this before generating.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">GENERATE_LENGTH</span></div>
+      <div class="param-cell"><span class="param-default">800</span></div>
+      <div class="param-cell"><span class="param-desc">How many characters to generate. 500 ≈ short poem. 800 ≈ long poem. 1500 ≈ essay-poem. The model does not know it has a limit.</span></div>
+    </div>
+    <div class="param-row">
+      <div class="param-cell"><span class="param-name">CHECKPOINT_PATH</span></div>
+      <div class="param-cell"><span class="param-default">None</span></div>
+      <div class="param-cell"><span class="param-desc">Leave as None to use the most recent checkpoint. Or specify a path to use an earlier model state.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ARCHITECTURE ═══════════════════════════════════════════════════════ -->
+<section id="architecture">
+  <div class="section-label">10 — Architecture</div>
+  <h2>Architecture</h2>
+
+  <h3>Why character-level</h3>
+  <p>
+    The model reads and generates one character at a time — not words, not tokens.
+    This preserves the grain of your writing: the idiosyncratic spacing, the broken grammar,
+    the abrupt line endings. A word-level model would smooth those edges. This one keeps them.
+    Your corpus is already degraded language. This model learns the texture of degradation itself.
+  </p>
+
+  <h3>Why LSTM, not Transformer</h3>
+  <p>
+    A Transformer (the architecture behind GPT, Claude, most modern language models)
+    processes text by attending to all positions simultaneously. It has no genuine past —
+    it treats time as space, every moment equally accessible.
+  </p>
+  <p>
+    An LSTM has a hidden state that is carried forward through time. Each character
+    modifies the state, and the state carries influence from earlier characters forward.
+    The past is present, but imperfectly — it degrades as new information arrives.
+    This is the only architecture whose temporal structure is philosophically correct for this project.
+  </p>
+  <p>
+    The LSTM has a <strong>forget gate</strong> — a literal architectural mechanism that
+    decides what to discard from memory at each timestep. Not a metaphor.
+    The mechanism itself forgets, by design.
+  </p>
+
+  <h3>The forget gate</h3>
+  <p>
+    At each character, the LSTM computes four values: input gate (what new information to store),
+    forget gate (what existing memory to discard), cell state (the accumulated memory),
+    and output gate (what to read from memory). The forget gate multiplies the current
+    memory by a number between 0 and 1 — 0 is complete forgetting, 1 is complete retention.
+    The model learns what to forget from the data itself.
+  </p>
+
+  <h3>Why dropout is structural</h3>
+  <p>
+    During training, 30% of connections are randomly severed at each step. The model
+    learns to represent information redundantly — no single pathway can be relied upon.
+    This means the model's knowledge is distributed and imprecise. The degradation
+    is not added after training. It is trained in.
+  </p>
+
+  <h3>Third-generation degradation</h3>
+  <p>
+    Book-0 and Book-1 are themselves the outputs of F0x and am1 — RNNs trained on
+    your grandparents' letters. Their language is already once-removed from the source.
+    This model trains on that output, producing output twice-removed. When generation
+    is seeded with a fragment from a grandmother's letter, the result passes through
+    three layers of computational mediation. The distance is the point.
+  </p>
+</section>
+
+<!-- ══ TROUBLESHOOTING ════════════════════════════════════════════════════ -->
+<section id="troubleshooting">
+  <div class="section-label">11 — Troubleshooting</div>
+  <h2>Troubleshooting</h2>
+
+  <h3><code>ModuleNotFoundError: No module named 'fitz'</code></h3>
+  <p>PyMuPDF is not installed. Run:</p>
+  <pre><code><span class="cmd">pip install pymupdf</span></code></pre>
+
+  <h3><code>ModuleNotFoundError: No module named 'torch'</code></h3>
+  <p>PyTorch is not installed. Run:</p>
+  <pre><code><span class="cmd">pip install torch</span></code></pre>
+
+  <h3><code>ERROR: Cannot find book-0.pdf</code></h3>
+  <p>The script expects the PDFs to be one folder up from <code>degrading_model/</code>.
+  Check that your folder structure looks like this:</p>
+  <pre><code>0wl-encounter/
+  book-0.pdf
+  book-1.pdf
+  degrading_model/
+    1_prepare_corpus.py
+    2_train.py
+    3_generate.py</code></pre>
+
+  <h3><code>No checkpoint found</code></h3>
+  <p>You need to run <code>2_train.py</code> and wait for the first checkpoint
+  (after epoch 10) before you can generate.</p>
+
+  <h3>Training is very slow</h3>
+  <p>This is expected on CPU. 150 epochs may take several hours on a laptop.
+  You can reduce <code>NUM_EPOCHS</code> to 50 or 80 for faster results,
+  and generate from those earlier checkpoints.</p>
+
+  <h3>The output doesn't look right / is pure gibberish</h3>
+  <p>
+    If you are only a few epochs in, this is expected — the model is still learning.
+    Try after epoch 30–50 for legible-but-degraded output.
+    If it is still pure noise at epoch 100+, try lowering <code>TEMPERATURE</code>
+    to <code>0.5</code> or <code>0.3</code>.
+  </p>
+
+  <h3>Out of memory</h3>
+  <p>Lower <code>BATCH_SIZE</code> to <code>16</code> in <code>2_train.py</code>.</p>
+
+  <h3>Windows: <code>venv\Scripts\activate</code> gives a permissions error</h3>
+  <p>Open PowerShell as Administrator and run:</p>
+  <pre><code><span class="cmd">Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</span></code></pre>
+  <p class="dim">Then try activating the virtual environment again.</p>
+
+  <hr>
+
+  <footer>
+    <p>
+      <em>The Degrading Model</em> — practice-based PhD research.<br>
+      Anamarija Ami Podrebarac.<br><br>
+      "Memory as productive erosion. The model knows traces —
+      what remains of a person, not who they were."
+    </p>
+  </footer>
+</section>
+
+</div><!-- .page -->
+
+<script>
+  // OS tab switching
+  document.querySelectorAll('.os-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const group = tab.closest('.os-tab-group');
+      group.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+      group.querySelectorAll('.os-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      group.querySelector('#' + tab.dataset.target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
