@@ -1,0 +1,11 @@
+# Local Netlify folder
+.netlify
+
+# Training artefacts — large files, not needed on the site
+degrading_model/checkpoints/
+degrading_model/corpus.txt
+degrading_model/vocab.json
+degrading_model/__pycache__/
+degrading_model/venv/
+*.pyc
+.DS_Store
