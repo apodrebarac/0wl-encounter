@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Documentation — 0wl | Ami Podrebarac</title>
+<meta name="description" content="Technical documentation of the RNN poetry practice — from F0x (2017) to 0wl — by Ami Podrebarac. EEG, neural archives, textgenrnn, and the poetics of collapse.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #111110;
+  color: #c2c0b6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  padding: 2rem 1rem 5rem;
+  font-size: 14px;
+  line-height: 1.75;
+}
+.container { max-width: 740px; margin: 0 auto; }
+
+/* Header */
+.doc-header { margin-bottom: 48px; padding-bottom: 24px; border-bottom: 0.5px solid rgba(255,255,255,0.08); }
+h1 { font-size: 20px; font-weight: 500; color: #e0ded6; margin-bottom: 6px; }
+.byline { font-size: 12px; color: #555; margin-bottom: 4px; }
+.byline a { color: #73726c; text-decoration: none; }
+.byline a:hover { color: #9c9a92; }
+
+/* Table of contents */
+.toc { background: #1a1a1a; border-radius: 10px; padding: 20px 24px; margin-bottom: 48px; }
+.toc-title { font-size: 11px; color: #555; letter-spacing: 0.08em; margin-bottom: 14px; }
+.toc ol { list-style: none; counter-reset: toc-counter; }
+.toc li { counter-increment: toc-counter; margin-bottom: 7px; display: flex; align-items: baseline; gap: 10px; }
+.toc li::before { content: "0" counter(toc-counter); font-size: 10px; color: #444; font-family: 'Consolas', monospace; min-width: 20px; }
+.toc a { color: #85B7EB; text-decoration: none; font-size: 13px; }
+.toc a:hover { text-decoration: underline; }
+
+/* Sections */
+.section { margin-bottom: 56px; }
+h2 { font-size: 16px; font-weight: 500; color: #e0ded6; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 0.5px solid rgba(255,255,255,0.06); scroll-margin-top: 24px; }
+h3 { font-size: 13px; font-weight: 500; color: #c2c0b6; margin: 24px 0 10px; letter-spacing: 0.02em; }
+h4 { font-size: 12px; font-weight: 500; color: #9c9a92; margin: 18px 0 8px; }
+p { color: #9c9a92; margin-bottom: 14px; }
+p:last-child { margin-bottom: 0; }
+em { font-style: italic; color: #73726c; }
+strong { font-weight: 500; color: #c2c0b6; }
+a { color: #85B7EB; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 16px 0 24px; border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead th { font-size: 11px; font-weight: 500; color: #555; letter-spacing: 0.06em; text-align: left; padding: 10px 14px; border-bottom: 0.5px solid rgba(255,255,255,0.08); }
+tbody td { padding: 9px 14px; color: #9c9a92; border-bottom: 0.5px solid rgba(255,255,255,0.04); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Code blocks */
+pre {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 14px 0 20px;
+  border-left: 2px solid rgba(133,183,235,0.25);
+}
+code {
+  font-family: 'Consolas', 'Monaco', 'SF Mono', monospace;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #9c9a92;
+}
+p code, li code {
+  background: #1a1a1a;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  color: #AFA9EC;
+}
+
+/* Tag chips */
+.tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.12); color: #73726c; margin-right: 4px; margin-bottom: 4px; }
+.tag-eeg { border-color: rgba(175,169,236,0.3); color: #AFA9EC; }
+.tag-tree { border-color: rgba(93,202,165,0.3); color: #5DCAA5; }
+.tag-rnn { border-color: rgba(240,153,123,0.3); color: #F0997B; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 20px; margin: 8px 0 24px; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 0.5px; background: rgba(255,255,255,0.08); }
+.timeline-item { position: relative; margin-bottom: 20px; }
+.timeline-item::before { content: ''; position: absolute; left: -23px; top: 6px; width: 6px; height: 6px; border-radius: 50%; background: #444; }
+.timeline-year { font-size: 11px; color: #555; margin-bottom: 3px; font-family: 'Consolas', monospace; }
+.timeline-title { font-size: 13px; color: #c2c0b6; font-weight: 500; margin-bottom: 4px; }
+.timeline-desc { font-size: 12.5px; color: #73726c; }
+
+/* Principles */
+.principle { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+.principle-num { font-size: 10px; color: #444; font-family: 'Consolas', monospace; min-width: 24px; padding-top: 2px; }
+.principle-body { flex: 1; }
+.principle-title { font-size: 13px; font-weight: 500; color: #c2c0b6; margin-bottom: 4px; }
+.principle-text { font-size: 13px; color: #73726c; line-height: 1.65; }
+
+/* Checklist */
+.checklist { list-style: none; margin: 10px 0 20px; }
+.checklist li { padding: 5px 0; color: #9c9a92; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; }
+.checklist li::before { content: '☐'; color: #444; font-size: 12px; margin-top: 1px; }
+
+/* Site map */
+.sitemap { display: grid; gap: 8px; margin: 12px 0 20px; }
+.sitemap-row { display: flex; gap: 12px; align-items: center; padding: 10px 14px; background: #1a1a1a; border-radius: 8px; }
+.sitemap-url { font-family: 'Consolas', monospace; font-size: 12px; color: #85B7EB; min-width: 260px; }
+.sitemap-desc { font-size: 12.5px; color: #73726c; }
+
+/* Spec rows */
+.spec-list { list-style: none; margin: 8px 0 20px; }
+.spec-list li { display: flex; gap: 12px; padding: 7px 0; border-bottom: 0.5px solid rgba(255,255,255,0.04); font-size: 13px; }
+.spec-list li:last-child { border-bottom: none; }
+.spec-key { color: #73726c; min-width: 140px; }
+.spec-val { color: #9c9a92; }
+
+/* Divider */
+hr { border: none; border-top: 0.5px solid rgba(255,255,255,0.06); margin: 48px 0; }
+
+/* Footer */
+.footer { font-size: 11px; color: #444; margin-top: 64px; padding-top: 20px; border-top: 0.5px solid rgba(255,255,255,0.06); }
+.footer a { color: #555; text-decoration: none; }
+.footer a:hover { color: #73726c; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-header">
+    <h1>Technical documentation — 0wl RNN practice</h1>
+    <p class="byline">Anamarija Ami Podrebarac · <a href="https://0wlpoetry.com">0wlpoetry.com</a></p>
+    <p class="byline"><em>The Sensuality of Data</em> — PhD research, Central Saint Martins / CCI, UAL</p>
+    <p style="margin-top:12px; color:#555; font-size:12px;">F0x (2017) → 0wl (present) · Last updated May 2026</p>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <p class="toc-title">CONTENTS</p>
+    <ol>
+      <li><a href="#overview">Overview & timeline</a></li>
+      <li><a href="#fox">F0x — grandfather's archive (2017–2019)</a></li>
+      <li><a href="#immigrant">Immigrant and a Tree — dual archive system (2019)</a></li>
+      <li><a href="#peerly">EEG with my cat — Peerly × The Decameron (2020)</a></li>
+      <li><a href="#owl">0wl — grandmother's archive (ongoing)</a></li>
+      <li><a href="#hardware">Hardware reference</a></li>
+      <li><a href="#software">Software stack</a></li>
+      <li><a href="#principles">Conceptual principles</a></li>
+      <li><a href="#future">Notes for future EEG work</a></li>
+      <li><a href="#site">Website structure</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. OVERVIEW -->
+  <div class="section" id="overview">
+    <h2>01 — Overview & timeline</h2>
+    <p>A body of practice-led PhD research in which recurrent neural networks are trained on intimate personal archives and physiological data to generate poetry. The practice spans from the first text generator F0x (2017) to the current 0wl system — encompassing EEG-driven performances, tree-mapping walks across London, cross-species neural experiments, and iterative model development.</p>
+    <p>Each project builds on the last. The "0" in F0x carries forward through all models: a mark of the archive, the body, the loop that refuses to close cleanly.</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <p class="timeline-year">2017</p>
+        <p class="timeline-title">F0x</p>
+        <p class="timeline-desc">First RNN — trained on grandfather's translated letters. Fragmented poetry. Deliberate collapse.</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-year">January 2019</p>
+        <p class="timeline-title">Hello F0x, Goodbye F0x</p>
+        <p class="timeline-desc">Ceiling installation of F0x's final outputs. The model's death treated as mourning.</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-year">March–May 2019</p>
+        <p class="timeline-title">Immigrant and a Tree + EEG performances</p>
+        <p class="timeline-desc">4 × 4-hour EEG writing sessions (internal archive) + 700+ London tree walks (external archive). Dual dataset → RNN₀ + RNN₁ → Book 0 + Book 1 (am).</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-year">2020</p>
+        <p class="timeline-title">EEG with My Cat — Peerly × The Decameron</p>
+        <p class="timeline-desc">COVID isolation. Cat EEG activity (eating / sleeping / playing) × Boccaccio → 40 poems.</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-year">2024</p>
+        <p class="timeline-title">Venice Biennale</p>
+        <p class="timeline-desc">Croatian Pavilion — booklet of F0x's saved outputs exhibited within Vlatka Horvat & Antonia Majaca's <em>By the Means at Hand</em>.</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-year">ongoing</p>
+        <p class="timeline-title">0wl</p>
+        <p class="timeline-desc">Successor to F0x — trained on grandmother's writing. The ancestral archive continues.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. F0X -->
+  <div class="section" id="fox">
+    <h2>02 — F0x — grandfather's archive (2017–2019)</h2>
+    <span class="tag tag-rnn">RNN</span><span class="tag">textgenrnn</span><span class="tag">NLTK</span>
+
+    <h3>Concept</h3>
+    <p>F0x was the first text generator in the practice — named for the "0" that would carry forward through all subsequent models. Trained on the translated and anonymised letters of the author's grandfather, it operated as a <em>wounded archive</em>: data shaped by grief, displacement, and the irreversibility of loss.</p>
+    <p>The model was intentionally kept fragile. Rather than being repaired when it began to fail, it was allowed to collapse — its final outputs (stutters, loops, blank sequences, ASCII ruins) treated as a form of algorithmic mourning. Collapse is not failure but knowledge; care sometimes requires allowing a system to unravel.</p>
+
+    <h3>Corpus</h3>
+    <ul class="spec-list">
+      <li><span class="spec-key">Source</span><span class="spec-val">Personal letters by the author's grandfather</span></li>
+      <li><span class="spec-key">Language</span><span class="spec-val">Original (Croatian/Yugoslav) → translated to English</span></li>
+      <li><span class="spec-key">Pre-processing</span><span class="spec-val">Anonymisation (names, locations removed); stemming and lemmatisation via NLTK</span></li>
+    </ul>
+
+    <h3>Model</h3>
+    <ul class="spec-list">
+      <li><span class="spec-key">Architecture</span><span class="spec-val">RNN, character-level LSTM</span></li>
+      <li><span class="spec-key">Library</span><span class="spec-val">textgenrnn (Python)</span></li>
+      <li><span class="spec-key">Training intent</span><span class="spec-val">Fragmentation and drift treated as meaningful, not corrected</span></li>
+    </ul>
+
+<pre><code>from textgenrnn import textgenrnn
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
+# Pre-processing
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+
+# Training
+textgen = textgenrnn()
+textgen.train_from_file('grandfather_corpus.txt', num_epochs=50)</code></pre>
+
+    <h3>Outputs</h3>
+    <p>Fragmented poetry, increasingly incoherent over the model's lifetime. Final poem begins: <em>"Devotion in a voice and processing of being..."</em></p>
+    <p><strong>Ceiling installation</strong> (January 2019) — F0x's final outputs suspended in space as the model died.</p>
+    <p><strong>Venice Biennale 2024</strong> — Croatian Pavilion, within Vlatka Horvat and Antonia Majaca's project <em>By the Means at Hand</em>: a booklet of F0x's saved outputs exhibited as a quiet diary of diasporic adaptation and unease.</p>
+  </div>
+
+  <!-- 3. IMMIGRANT AND A TREE -->
+  <div class="section" id="immigrant">
+    <h2>03 — Immigrant and a Tree — dual archive system (2019)</h2>
+    <span class="tag tag-eeg">EEG</span><span class="tag tag-tree">tree mapping</span><span class="tag tag-rnn">RNN₀ + RNN₁</span><span class="tag">PLUX biosignalsplux</span>
+
+    <h3>Concept</h3>
+    <p>A dual mapping system in which the internal nervous system (brain / body / EEG) and the external nervous system (city / trees / displacement) were constructed simultaneously and trained together as a binary dataset. The two archives produced two models (RNN₀ and RNN₁) and two poetry books (Book 0 and Book 1 / <em>am</em>).</p>
+    <p>The work closed recursively: poetry generated by the RNNs was read aloud to the trees that had been assigned the original EEG fragments — returning machine-processed language to its non-human origin. The loop: <code>body → EEG → writing → fragments → trees → RNN → poetry → voice → trees</code>.</p>
+
+    <h3>Internal archive — EEG performance</h3>
+
+    <h4>Hardware</h4>
+    <ul class="spec-list">
+      <li><span class="spec-key">EEG system</span><span class="spec-val">PLUX biosignalsplux EEG sensor kit</span></li>
+      <li><span class="spec-key">Additional</span><span class="spec-val">Arduino board (real-time brain activity mapping)</span></li>
+      <li><span class="spec-key">Software</span><span class="spec-val">OpenSignals (PLUX) — multi-channel EEG visualisation and export</span></li>
+      <li><span class="spec-key">Export format</span><span class="spec-val">.txt — columns: [sequence, digital, ch1, ch2, …]; EEG = last column</span></li>
+      <li><span class="spec-key">Channels active</span><span class="spec-val">2, 3, and 5</span></li>
+    </ul>
+
+    <h4>Performance protocol</h4>
+    <ul class="spec-list">
+      <li><span class="spec-key">Sessions</span><span class="spec-val">4 × 4 hours (16 hours total EEG data + simultaneous writing)</span></li>
+      <li><span class="spec-key">Location</span><span class="spec-val">Writing on a wall — stream of consciousness, durational and exhaustive</span></li>
+      <li><span class="spec-key">Dates</span><span class="spec-val">March–May 2019</span></li>
+    </ul>
+
+    <h4>EEG spike detection</h4>
+<pre><code>from opensignals import load_session
+import numpy as np
+
+eeg = load_session('session_01.txt')
+# Column structure: [sequence, digital, ch1...]
+# EEG channel = last column
+
+# Spike detection
+threshold = np.mean(eeg) + 2.0 * np.std(eeg)
+spike_indices = np.where(eeg > threshold)[0]
+
+# Onset filtering — keep only spike onsets (min 50-sample gap)
+events = [s for i, s in enumerate(spike_indices)
+          if i == 0 or s - spike_indices[i-1] > 50]</code></pre>
+
+    <h4>Word fragment extraction</h4>
+    <p>After each four-hour session, the words and phrases that physically survived the endurance of continuous wall-inscription were gathered as <em>residues</em>. These were not algorithmically extracted — they were what remained after exhaustion: the linguistic equivalent of chalk dust. Examples: <code>"displaced"</code>, <code>"root"</code>, <code>"still"</code>, <code>"glass"</code>, <code>"waiting"</code>, <code>"breath"</code>, <code>"foreign"</code>, <code>"threshold"</code>, <code>"tremor"</code>, <code>"silence"</code>.</p>
+    <p>These fragments became the <strong>internal corpus</strong> — training data for RNN₁.</p>
+
+    <h3>External archive — tree mapping</h3>
+
+    <h4>Process</h4>
+    <ul class="spec-list">
+      <li><span class="spec-key">Location</span><span class="spec-val">London — Stepney / Whitechapel / East London (Mile End area)</span></li>
+      <li><span class="spec-key">Scope</span><span class="spec-val">700+ non-native trees documented across walking routes</span></li>
+      <li><span class="spec-key">Method</span><span class="spec-val">Each tree assigned one word from the EEG performance fragments</span></li>
+      <li><span class="spec-key">Rationale</span><span class="spec-val">Non-native trees — growing in foreign soil — treated as an external nervous system; each receives a word carrying neural and linguistic residue</span></li>
+    </ul>
+
+<pre><code># Assign EEG fragments to London trees
+tree_words = {}
+for i, tree in enumerate(london_trees):
+    word = fragments[i % len(fragments)]
+    tree_words[tree.location] = word
+    # intra-active encounter: tree ← word
+    # neither pre-exists unchanged (Barad, 2007)</code></pre>
+
+    <h3>RNN training — binary dataset</h3>
+    <p>Both archives were fed into the model together as a single binary dataset:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Archive</th><th>Corpus</th><th>Output</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>RNN₀</td><td>External</td><td>Tree-word sequences (Immigrant and a Tree)</td><td>Book 0</td></tr>
+          <tr><td>RNN₁</td><td>Internal</td><td>EEG neural writing fragments</td><td>Book 1 (am)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+<pre><code>from textgenrnn import textgenrnn
+
+textgen = textgenrnn()
+textgen.train_from_file(
+    'combined_corpus.txt',
+    num_epochs=50,
+    rnn_size=128,
+    rnn_layers=2,
+    word_level=False,   # char-level = more fragmentation and drift
+    new_model=True
+)
+
+# Generate at varying temperatures
+textgen.generate(n=5, temperature=0.7)   # coherent
+textgen.generate(n=5, temperature=1.2)   # drifting
+textgen.generate(n=5, temperature=1.5)   # collapse</code></pre>
+
+    <h4>Temperature as poetics</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Temperature</th><th>Character</th></tr></thead>
+        <tbody>
+          <tr><td><code>0.7</code></td><td>Coherent — close to training data rhythm; recommended starting point</td></tr>
+          <tr><td><code>1.0</code></td><td>Balanced — some creativity, some coherence</td></tr>
+          <tr><td><code>1.2</code></td><td>Drifting — associative, poetic ambiguity</td></tr>
+          <tr><td><code>1.5</code></td><td>Near-collapse — fragmented, minimal</td></tr>
+          <tr><td><code>2.0+</code></td><td>Collapse — noise; preserve these outputs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Published outputs</h3>
+    <p><strong>Book 0</strong> and <strong>Book 1 (am)</strong> — available at <a href="https://0wlpoetry.com/book-0.pdf">0wlpoetry.com/book-0.pdf</a> and <a href="https://0wlpoetry.com/book-1.pdf">book-1.pdf</a>.</p>
+    <p>Interactive pipeline diagram: <a href="https://0wlpoetry.com/diagram">0wlpoetry.com/diagram</a></p>
+  </div>
+
+  <!-- 4. PEERLY -->
+  <div class="section" id="peerly">
+    <h2>04 — EEG with my cat — Peerly × The Decameron (2020)</h2>
+    <span class="tag tag-eeg">EEG</span><span class="tag">PLUX biosignalsplux</span><span class="tag tag-rnn">RNN</span><span class="tag">Boccaccio</span>
+
+    <h3>Concept</h3>
+    <p>During COVID-19 lockdown in London, living in isolation with the cat Peerly, EEG sensors were attached to map his three most consistent daily activities: eating, sleeping, and playing. Each neural spike triggered a word from Boccaccio's <em>The Decameron</em> (1353) — chosen because its context of plague, enforced isolation, storytelling, and survival mirrored the crisis unfolding outside.</p>
+    <p>The cat's quiet, cyclical rhythms became the generative engine for a body of poetry carrying traces of cross-species neural activity and fourteenth-century narrative.</p>
+
+    <h3>Hardware</h3>
+    <ul class="spec-list">
+      <li><span class="spec-key">EEG system</span><span class="spec-val">PLUX biosignalsplux (same as 2019 performances)</span></li>
+      <li><span class="spec-key">Software</span><span class="spec-val">OpenSignals (PLUX)</span></li>
+      <li><span class="spec-key">Subject</span><span class="spec-val">Peerly (domestic cat)</span></li>
+    </ul>
+
+    <h3>Activity classification</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>State</th><th>EEG characteristics</th></tr></thead>
+        <tbody>
+          <tr><td>Eating</td><td>Rhythmic, regular spike pattern</td></tr>
+          <tr><td>Sleeping</td><td>Low-amplitude, slow-wave activity</td></tr>
+          <tr><td>Playing</td><td>High-amplitude, irregular bursts</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Corpus & mapping</h3>
+    <ul class="spec-list">
+      <li><span class="spec-key">Text</span><span class="spec-val"><em>The Decameron</em> — Giovanni Boccaccio (1353), English translation (public domain)</span></li>
+      <li><span class="spec-key">Mapping</span><span class="spec-val">Each EEG spike → next word drawn sequentially from Decameron corpus, modulated by activity state</span></li>
+    </ul>
+
+<pre><code># Spike-to-word mapping
+decameron_words = open('decameron.txt').read().split()
+word_index = 0
+
+for spike_time, activity_state in zip(spike_times, activity_labels):
+    word = decameron_words[word_index % len(decameron_words)]
+    output_sequence.append((spike_time, activity_state, word))
+    word_index += 1</code></pre>
+
+    <h3>Output</h3>
+    <p><strong>40 poems</strong> generated from Peerly's EEG neural data × Boccaccio's Decameron.</p>
+    <p>Full poems and diagram: <a href="https://0wlpoetry.com/peerly">0wlpoetry.com/peerly</a></p>
+  </div>
+
+  <!-- 5. OWL -->
+  <div class="section" id="owl">
+    <h2>05 — 0wl — grandmother's archive (ongoing)</h2>
+    <span class="tag tag-rnn">RNN</span>
+
+    <h3>Concept</h3>
+    <p>0wl is the successor to F0x — where F0x was trained on the grandfather's archive, 0wl is trained on the grandmother's writing. The naming reflects a shift: F0x (fox, cunning, fleeting) gives way to 0wl (owl, patient, nocturnal, watching). Together they constitute a dual ancestral archive — two voices from the same displaced family, processed through the same recursive neural logic.</p>
+
+    <h3>Corpus</h3>
+    <ul class="spec-list">
+      <li><span class="spec-key">Source</span><span class="spec-val">Grandmother's writing — translated and anonymised (consistent with F0x ethical framework)</span></li>
+      <li><span class="spec-key">Model</span><span class="spec-val">RNN (architecture consistent with F0x and dual-archive system)</span></li>
+    </ul>
+
+    <h3>Published outputs</h3>
+    <p>186 poems (Book 0 + Book 1) accessible via <a href="https://0wlpoetry.com">0wlpoetry.com</a> — presented with typewriter effect, randomised order, fade-to-dark on touch. Designed for mobile-first access via QR code at academic presentations.</p>
+  </div>
+
+  <hr>
+
+  <!-- 6. HARDWARE -->
+  <div class="section" id="hardware">
+    <h2>06 — Hardware reference</h2>
+    <span class="tag tag-eeg">PLUX biosignalsplux</span><span class="tag">OpenSignals</span>
+
+    <h3>PLUX biosignalsplux EEG kit</h3>
+    <p>Used across all EEG-based projects: Immigrant and a Tree (2019) and Peerly (2020).</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Specification</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td>Device</td><td>PLUX biosignalsplux</td></tr>
+          <tr><td>Additional (2019)</td><td>Arduino board for real-time brain activity mapping</td></tr>
+          <tr><td>Software</td><td>OpenSignals (PLUX)</td></tr>
+          <tr><td>Channels used</td><td>2, 3, 5 (in 2019 EEG performances)</td></tr>
+          <tr><td>Export format</td><td><code>.txt</code></td></tr>
+          <tr><td>Column structure</td><td><code>[sequence, digital, ch1, ch2, ch3, ...]</code></td></tr>
+          <tr><td>EEG channel</td><td>Last column of sensor data</td></tr>
+          <tr><td>Connection</td><td>Bluetooth</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>OpenSignals — session workflow</h3>
+    <ol style="padding-left:18px; color:#9c9a92; font-size:13px; line-height:2;">
+      <li>Connect biosignalsplux device via Bluetooth</li>
+      <li>Open OpenSignals; select and enable active channels</li>
+      <li>Run 2–3 minute baseline recording before each session</li>
+      <li>Begin main recording session</li>
+      <li>Export session: File → Save/Export → <code>.txt</code></li>
+      <li>Parse in Python: EEG data is in the last column</li>
+      <li>Use per-session baseline to calculate mean and std for spike threshold</li>
+    </ol>
+  </div>
+
+  <!-- 7. SOFTWARE -->
+  <div class="section" id="software">
+    <h2>07 — Software stack</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Python 3.x</td><td>All data processing and model training</td></tr>
+          <tr><td>textgenrnn</td><td>Char-level LSTM RNN — core generation library</td></tr>
+          <tr><td>numpy</td><td>EEG signal processing, spike detection</td></tr>
+          <tr><td>NLTK</td><td>Text pre-processing (PorterStemmer, WordNetLemmatizer)</td></tr>
+          <tr><td>OpenSignals (PLUX)</td><td>EEG data capture and visualisation</td></tr>
+          <tr><td>opensignals (Python)</td><td>Loading OpenSignals session files in Python</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>textgenrnn — full parameter reference</h3>
+<pre><code>textgen.train_from_file(
+    'corpus.txt',
+    num_epochs=50,       # increase for more complex corpora
+    rnn_size=128,        # cells per layer (128 = moderate)
+    rnn_layers=2,        # depth (2 used in dual-archive work)
+    word_level=False,    # char-level = more fragmentation/drift
+    new_model=True       # train fresh model each time
+)
+
+# Recommended generation sequence
+textgen.generate(n=5, temperature=0.7)   # coherent — start here
+textgen.generate(n=5, temperature=1.2)   # drifting
+textgen.generate(n=5, temperature=1.5)   # near-collapse</code></pre>
+  </div>
+
+  <!-- 8. PRINCIPLES -->
+  <div class="section" id="principles">
+    <h2>08 — Conceptual principles</h2>
+    <p style="margin-bottom:24px;">These principles have guided all technical choices and should inform future EEG and model work:</p>
+
+    <div class="principle">
+      <span class="principle-num">01</span>
+      <div class="principle-body">
+        <p class="principle-title">Fragmentation is data, not error</p>
+        <p class="principle-text">Incomplete outputs, stutters, and model collapse are meaningful outputs. Preserve them rather than correcting for them. The instability of the model mirrors the instability of the archive.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <span class="principle-num">02</span>
+      <div class="principle-body">
+        <p class="principle-title">The body is a corpus</p>
+        <p class="principle-text">EEG data is not just signal — it is corporeal autobiography. Technical decisions (spike threshold, sampling rate, channel selection) shape what of the body is legible. Document every choice.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <span class="principle-num">03</span>
+      <div class="principle-body">
+        <p class="principle-title">Temperature as poetics</p>
+        <p class="principle-text">Generation temperature is an aesthetic parameter as much as a technical one. Always generate at multiple temperatures. Document which temperature produced which poems and why each felt right.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <span class="principle-num">04</span>
+      <div class="principle-body">
+        <p class="principle-title">Collapse as ethics</p>
+        <p class="principle-text">Models are not repaired or retrained when they begin to fail. Allowing collapse is a refusal of the logic of optimisation. The delay between input and output, the willingness to let a model die — these are refusals of instant gratification.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <span class="principle-num">05</span>
+      <div class="principle-body">
+        <p class="principle-title">The loop must close</p>
+        <p class="principle-text">Each system returns its outputs to its origin: poetry is read back to trees; F0x's collapse is archived, not discarded; the machine's outputs re-enter the world that generated them. Design the return.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. FUTURE EEG WORK -->
+  <div class="section" id="future">
+    <h2>09 — Notes for future EEG work</h2>
+
+    <h3>Session setup checklist</h3>
+    <ul class="checklist">
+      <li>Charge biosignalsplux device fully before session</li>
+      <li>Document electrode placement for each session (consistent 10-20 system or custom)</li>
+      <li>Run 2–3 minute baseline recording — used to calculate per-session mean and std</li>
+      <li>Enable channels 2, 3, 5 (established in 2019 sessions) or document any changes</li>
+      <li>Verify OpenSignals export format before long sessions</li>
+    </ul>
+
+    <h3>Training checklist</h3>
+    <ul class="checklist">
+      <li>Corpus anonymised and ethically cleared</li>
+      <li>Corpus pre-processed (NLTK stemming / lemmatisation)</li>
+      <li>Baseline EEG recorded per session</li>
+      <li>Spike events extracted from all sessions</li>
+      <li>Spike-to-word mapping documented</li>
+      <li>Training run: <code>num_epochs=50</code>, <code>rnn_size=128</code>, <code>rnn_layers=2</code></li>
+      <li>Outputs generated at <code>t=0.7</code>, <code>t=1.2</code>, <code>t=1.5</code></li>
+      <li>All temperature outputs saved (including collapses)</li>
+      <li>Model weights saved (even if model later collapses)</li>
+    </ul>
+
+    <h3>Reusable session processing function</h3>
+<pre><code>from opensignals import load_session
+import numpy as np
+
+def process_eeg_session(filepath, spike_multiplier=2.0, min_gap=50):
+    """
+    Load and process a single OpenSignals EEG session.
+
+    filepath        : path to .txt OpenSignals export
+    spike_multiplier: threshold = mean + multiplier * std
+                      lower = more sensitive (more spikes detected)
+                      higher = less sensitive (fewer, stronger spikes)
+    min_gap         : minimum samples between spikes (onset detection)
+    """
+    eeg = load_session(filepath)
+
+    threshold = np.mean(eeg) + spike_multiplier * np.std(eeg)
+    spike_indices = np.where(eeg > threshold)[0]
+
+    events = [s for i, s in enumerate(spike_indices)
+              if i == 0 or s - spike_indices[i-1] > min_gap]
+
+    return events
+
+# Process all sessions
+all_events = []
+for session_file in session_files:
+    events = process_eeg_session(session_file)
+    all_events.extend(events)
+</code></pre>
+
+    <h3>Corpus preparation function</h3>
+<pre><code>import nltk
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
+def prepare_corpus(raw_text):
+    """
+    Pre-process text corpus for RNN training.
+    Consistent with F0x and dual-archive methodology.
+    """
+    stemmer = PorterStemmer()
+    lemmatizer = WordNetLemmatizer()
+
+    tokens = nltk.word_tokenize(raw_text.lower())
+    processed = [lemmatizer.lemmatize(t) for t in tokens]
+
+    return ' '.join(processed)
+</code></pre>
+  </div>
+
+  <!-- 10. SITE -->
+  <div class="section" id="site">
+    <h2>10 — Website structure</h2>
+    <p>All outputs are published at <a href="https://0wlpoetry.com">0wlpoetry.com</a> — hosted on Netlify, deployed from <a href="https://github.com/apodrebarac/0wl-encounter">github.com/apodrebarac/0wl-encounter</a>.</p>
+
+    <div class="sitemap">
+      <div class="sitemap-row">
+        <span class="sitemap-url">0wlpoetry.com</span>
+        <span class="sitemap-desc">186 poems — typewriter effect, randomised, fade-to-dark on touch</span>
+      </div>
+      <div class="sitemap-row">
+        <span class="sitemap-url">0wlpoetry.com/diagram</span>
+        <span class="sitemap-desc">Interactive pipeline — Immigrant and a Tree dual mapping system</span>
+      </div>
+      <div class="sitemap-row">
+        <span class="sitemap-url">0wlpoetry.com/peerly</span>
+        <span class="sitemap-desc">Peerly × Decameron — diagram + 40 poems</span>
+      </div>
+      <div class="sitemap-row">
+        <span class="sitemap-url">0wlpoetry.com/documentation</span>
+        <span class="sitemap-desc">This document</span>
+      </div>
+      <div class="sitemap-row">
+        <span class="sitemap-url">0wlpoetry.com/book-0.pdf</span>
+        <span class="sitemap-desc">Book 0 (F0x) — full poetry book</span>
+      </div>
+      <div class="sitemap-row">
+        <span class="sitemap-url">0wlpoetry.com/book-1.pdf</span>
+        <span class="sitemap-desc">Book 1 (am) — full poetry book</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="footer">
+    © Ami Podrebarac · <a href="https://0wlpoetry.com">0wlpoetry.com</a> · <em>The Sensuality of Data</em>, PhD research, Central Saint Martins / CCI, UAL<br>
+    Document prepared May 2026 · To be updated as the practice continues
+  </p>
+
+</div>
+</body>
+</html>
