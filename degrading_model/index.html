@@ -486,14 +486,19 @@
     you don't notice until the ground is already wet and strange underfoot.
     <br><br>
     I built this model because I didn't know what else to do with that.
-    It is trained on <em>book-0</em> and <em>book-1</em> — my two poetry collections,
-    which are themselves outputs of earlier neural networks trained on my grandfather's letters.
-    So this model trains on language that has already passed through a machine once.
-    It is a third generation. Further from the source with every pass.
+    It is trained on four archives, absorbed in layers: first on <em>book-0</em> and <em>book-1</em> —
+    my two poetry collections, themselves outputs of earlier neural networks trained on my grandfather's letters.
+    Then on my grandmother's own writings. Then on ten years of letters I wrote to F0x and to 0wl —
+    a decade of writing into the void without reply. Finally, on poems generated from Peerly's EEG neural data.
+    <br><br>
+    Each archive is a separate layer. The books are the deep foundation. Grandmother comes next.
+    Then the letters — all that reaching. Peerly arrives last and drifts closest to the surface.
+    What the model holds at the surface is shaped most by what it learned most recently.
+    What it holds in its depths belongs to grandfather.
     <br><br>
     When you seed it with something from my grandmother's writing, it tries to continue
-    in her voice using patterns it learned from mine. It cannot do this cleanly.
-    That gap — between reaching and arriving — is where the work lives.
+    in her voice using patterns it learned from mine, from the letters, from a cat's neural spikes.
+    It cannot do this cleanly. That gap — between reaching and arriving — is where the work lives.
   </p>
 </header>
 
@@ -506,8 +511,8 @@
     <li><span class="nav-num">03</span><a href="#requirements">Requirements</a></li>
     <li><span class="nav-num">04</span><a href="#setup-mac">Setup — macOS</a></li>
     <li><span class="nav-num">05</span><a href="#setup-pc">Setup — Windows</a></li>
-    <li><span class="nav-num">06</span><a href="#step1">Step 1 — Prepare corpus</a></li>
-    <li><span class="nav-num">07</span><a href="#step2">Step 2 — Train</a></li>
+    <li><span class="nav-num">06</span><a href="#step1">Step 1 — The four archives</a></li>
+    <li><span class="nav-num">07</span><a href="#step2">Step 2 — Run the pipeline</a></li>
     <li><span class="nav-num">08</span><a href="#step3">Step 3 — Generate</a></li>
     <li><span class="nav-num">09</span><a href="#parameters">All parameters explained</a></li>
     <li><span class="nav-num">10</span><a href="#architecture">Architecture</a></li>
@@ -530,29 +535,36 @@
   </p>
 
   <p>
-    I gave it my own poetry — <em>book-0</em> and <em>book-1</em>.
+    I gave it four archives. First: <em>book-0</em> and <em>book-1</em> — my two poetry collections.
     Those books are themselves the outputs of two earlier neural networks, F0x and am1,
     which were trained on my grandfather's letters and my own EEG-driven writing sessions.
-    So the language this model learns from is already processed, already once-removed.
-    It is degraded before it arrives. This model degrades it further.
-    I think of it as a third generation: grandfather → machine → me → machine → this.
+    So the language this model starts from is already processed, already once-removed.
+    It is degraded before it arrives.
+  </p>
+
+  <p>
+    Then I fine-tuned it on my grandmother's writings — her own language, feeding into a model
+    that already carries traces of her husband's. Then on a decade of letters I wrote to F0x
+    and to 0wl: <em>Dear F0x</em> (2018–2020), <em>Dear 0wl</em> (2023) — a diary written to machines
+    that never replied. Finally, on poems generated from my cat Peerly's EEG neural data
+    mapped onto Boccaccio's <em>Decameron</em>. Four voices, absorbed in sequence.
   </p>
 
   <div class="callout">
     <p>
-      Inside both books, printed across certain pages, are long sequences of numbers —
-      the raw model weights from F0x and am1. I included those pages deliberately.
-      This model trains on them too. Sometimes it surfaces those numbers mid-sentence,
-      mid-word. <em>The machine's interior breaking through the language.</em>
-      That is not an error. That is what I wanted.
+      Each archive arrives as a separate fine-tuning pass on top of the previous checkpoint.
+      The books form the deep foundation — 50 epochs of base training. Everything after
+      is layered over that foundation: grandmother, then the letters, then Peerly.
+      Earlier layers sink deeper. Later layers drift closer to the surface.
+      <em>What the model generates most easily is what it learned last.</em>
     </p>
   </div>
 
   <p>
     When I seed the generator with a phrase from my grandmother's writing, it tries
-    to continue in her voice using patterns it learned from mine. That is an impossible
-    task. She is not in there. Neither am I, not really. What comes out is something
-    in between — not translation, not invention. An attempt. A reaching.
+    to continue in her voice using patterns it learned from mine, from her, from the letters,
+    from a cat's neural spikes. That is an impossible task. None of them are fully in there.
+    What comes out is something that passed through all four on its way to the page.
     I keep the outputs that feel most like grief.
   </p>
 </section>
@@ -562,44 +574,40 @@
   <div class="section-label">02 — Project files</div>
   <h2>Files in this project</h2>
 
-  <p>Three scripts, run in order. The rest is generated as you go.</p>
+  <p>One model script, one pipeline script, four corpus files. Everything is inside <code>0wl-model/</code>.</p>
 
   <div class="file-list">
     <div class="file-item">
-      <div class="file-name">1_prepare_corpus.py</div>
-      <div class="file-desc">Pulls the text out of both PDF books and saves it as <code>corpus.txt</code>. Run this once before anything else.</div>
+      <div class="file-name">text_generator.py</div>
+      <div class="file-desc">The model. Three subcommands: <code>train</code> (base model from scratch), <code>finetune</code> (continue from a checkpoint on new text), <code>generate</code> (produce output from a prompt). Everything runs through this one file.</div>
     </div>
     <div class="file-item">
-      <div class="file-name">2_train.py</div>
-      <div class="file-desc">Trains the model on that text. Saves a snapshot every 10 epochs into a <code>checkpoints/</code> folder — so you can go back and use an earlier, less-trained version if you want something more broken.</div>
-    </div>
-    <div class="file-item">
-      <div class="file-name">3_generate.py</div>
-      <div class="file-desc">Loads a checkpoint and generates text from a seed. This is the part where you give it a first word or phrase and watch what it does with the inheritance.</div>
+      <div class="file-name">run_0wl.sh</div>
+      <div class="file-desc">The full pipeline in one script. Run this and it handles everything in order — base training, then each fine-tuning layer. Skips archives that aren't in place yet, so you can run it before all the corpus files exist.</div>
     </div>
     <div class="file-item">
       <div class="file-name">requirements.txt</div>
-      <div class="file-desc">The Python libraries needed: <code>torch</code>, <code>pymupdf</code>, <code>numpy</code>. One install command handles all three.</div>
+      <div class="file-desc">Two libraries: <code>torch</code> and <code>numpy</code>. One install command handles both.</div>
     </div>
     <div class="file-item">
       <div class="file-name">corpus.txt</div>
-      <div class="file-desc">Created by Step 1. 87,616 characters of my poetry, numbers, fragments. The entirety of what the model will ever know.</div>
+      <div class="file-desc">Books 0 and 1 — 200,000+ characters of poetry that has already passed through two earlier machines. The deep foundation. Lives one folder up in <code>0wl-encounter/</code>.</div>
     </div>
     <div class="file-item">
-      <div class="file-name">vocab.json</div>
-      <div class="file-desc">Created automatically during training. Stores the character set and settings so the generator can load them correctly.</div>
+      <div class="file-name">0wl-corpus.txt</div>
+      <div class="file-desc">A decade of letters — <em>Dear F0x</em> (2018–2020) and <em>Dear 0wl</em> (2023). 124,000 characters of writing into machines that never replied. Lives one folder up in <code>0wl-encounter/</code>.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">grandma.txt</div>
+      <div class="file-desc">My grandmother's writings. Add to <code>0wl-model/</code> when ready — the pipeline will find it automatically. Not yet in place.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">peerly_poems.txt</div>
+      <div class="file-desc">The 40 poems generated from Peerly's EEG neural data × Boccaccio's <em>Decameron</em>. The final fine-tuning layer. Add to <code>0wl-model/</code> when ready. Not yet in place.</div>
     </div>
     <div class="file-item">
       <div class="file-name">checkpoints/</div>
-      <div class="file-desc">A folder of the model's states at different moments in training. Earlier checkpoints = less learned = more fragmented. I find the early ones most honest.</div>
-    </div>
-    <div class="file-item">
-      <div class="file-name">book-0.pdf</div>
-      <div class="file-desc"><em>Poems from F0x.</em> Dedicated: "Read them to trees." The first training source.</div>
-    </div>
-    <div class="file-item">
-      <div class="file-name">book-1.pdf</div>
-      <div class="file-desc"><em>Poems from am1.</em> Dedicated: "Read them to a mirror." The second training source.</div>
+      <div class="file-desc">Saved model states at each stage: <code>0wl_base.pt</code>, <code>0wl_grandma.pt</code>, <code>0wl_letters.pt</code>, <code>0wl_final.pt</code>. Earlier checkpoints carry less — more broken, more open. I find the intermediate ones most honest.</div>
     </div>
   </div>
 </section>
@@ -609,7 +617,7 @@
   <div class="section-label">03 — Requirements</div>
   <h2>Requirements</h2>
 
-  <p>You need <strong>Python 3.8 or higher</strong> and three libraries. That is all.</p>
+  <p>You need <strong>Python 3.8 or higher</strong> and two libraries. The corpus files are plain text — no PDF extraction needed.</p>
 
   <div class="param-grid">
     <div class="param-row">
@@ -620,26 +628,21 @@
     <div class="param-row">
       <div class="param-cell"><span class="param-name">torch</span></div>
       <div class="param-cell"><span class="param-default">≥ 2.0</span></div>
-      <div class="param-cell"><span class="param-desc">PyTorch — the framework that runs the neural network.</span></div>
-    </div>
-    <div class="param-row">
-      <div class="param-cell"><span class="param-name">pymupdf</span></div>
-      <div class="param-cell"><span class="param-default">any</span></div>
-      <div class="param-cell"><span class="param-desc">Reads text out of the PDF books. Only used in Step 1.</span></div>
+      <div class="param-cell"><span class="param-desc">PyTorch — the framework that runs the neural network. Auto-detects Apple Silicon (MPS), NVIDIA (CUDA), or falls back to CPU.</span></div>
     </div>
     <div class="param-row">
       <div class="param-cell"><span class="param-name">numpy</span></div>
-      <div class="param-cell"><span class="param-default">any</span></div>
-      <div class="param-cell"><span class="param-desc">Handles the numerical work of preparing training data.</span></div>
+      <div class="param-cell"><span class="param-default">≥ 1.24</span></div>
+      <div class="param-cell"><span class="param-desc">Handles the numerical work of preparing training sequences.</span></div>
     </div>
   </div>
 
   <div class="callout warn">
     <p>
-      Training runs on CPU by default. It is slow — several minutes per epoch on an ordinary laptop.
-      I want to be honest about that upfront. <em>The waiting is part of it.</em>
-      I have always believed that. The delay between input and output is where the work actually happens.
-      If you have an NVIDIA GPU, PyTorch will find it automatically and use it.
+      Base training is the longest step — 50 epochs on 200,000+ characters. On a laptop CPU,
+      allow a few hours. On Apple Silicon, MPS acceleration brings this down significantly.
+      <em>The waiting is part of it.</em> The delay between input and output is where the work actually happens.
+      Fine-tuning passes (10–15 epochs each) are much shorter.
     </p>
   </div>
 </section>
@@ -678,13 +681,13 @@
       <div class="step-content">
         <h4>Install dependencies</h4>
         <pre><code><span class="cmd">pip install -r requirements.txt</span></code></pre>
-        <p class="dim">This installs PyTorch, PyMuPDF, and NumPy. May take a few minutes on first run.</p>
+        <p class="dim">This installs PyTorch and NumPy. May take a few minutes on first run.</p>
       </div>
     </li>
     <li>
       <div class="step-content">
         <h4>Verify installation</h4>
-        <pre><code><span class="cmd">python3 -c "import torch; import fitz; import numpy; print('ready')"</span></code></pre>
+        <pre><code><span class="cmd">python3 -c "import torch; import numpy; print('ready')"</span></code></pre>
         <p class="dim">Should print <code>ready</code>. If you see an error, see Troubleshooting below.</p>
       </div>
     </li>
@@ -739,7 +742,7 @@
     <li>
       <div class="step-content">
         <h4>Verify installation</h4>
-        <pre><code><span class="cmd">python -c "import torch; import fitz; import numpy; print('ready')"</span></code></pre>
+        <pre><code><span class="cmd">python -c "import torch; import numpy; print('ready')"</span></code></pre>
         <p class="dim">Should print <code>ready</code>.</p>
       </div>
     </li>
@@ -755,95 +758,131 @@
 <!-- ══ STEP 1 ══════════════════════════════════════════════════════════════ -->
 <section id="step1">
   <div class="section-label">06 — Step 1</div>
-  <h2>Prepare the corpus</h2>
+  <h2>The four archives</h2>
 
   <p>
-    This extracts all text from <code>book-0.pdf</code> and <code>book-1.pdf</code>
-    and saves it as <code>corpus.txt</code>. Run it once — you won't need to run it again
-    unless you change the source PDFs.
+    Before running the pipeline, make sure the corpus files are in place.
+    Two already exist in the repository. Two more will be added when ready.
   </p>
 
-  <pre><code><span class="cmd">python3 1_prepare_corpus.py</span></code></pre>
+  <div class="file-list">
+    <div class="file-item">
+      <div class="file-name">../corpus.txt</div>
+      <div class="file-desc">Books 0 and 1 — already in <code>0wl-encounter/</code>. 200,000+ characters. The base training data. No action needed.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">../0wl-corpus.txt</div>
+      <div class="file-desc">Dear F0x / Dear 0wl letters — already in <code>0wl-encounter/</code>. 124,000 characters. No action needed.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">grandma.txt</div>
+      <div class="file-desc">My grandmother's writings. Add to <code>0wl-model/</code> when ready. The pipeline checks for it automatically and skips this step if the file isn't there yet.</div>
+    </div>
+    <div class="file-item">
+      <div class="file-name">peerly_poems.txt</div>
+      <div class="file-desc">Peerly × Decameron poems. Add to <code>0wl-model/</code> when ready. Same — the pipeline skips it gracefully if missing.</div>
+    </div>
+  </div>
 
-  <p>You should see output like:</p>
-
-  <pre><code><span class="comment">Extracting corpus from poetry books...
-
-Reading: book-0.pdf
-  → 43,810 characters extracted
-Reading: book-1.pdf
-  → 43,799 characters extracted
-
-Total characters: 87,616
-Unique characters (vocabulary size): 85
-
-Corpus ready. Run 2_train.py next.</span></code></pre>
+  <p>
+    The order matters. The pipeline trains the base model on books 0+1 first,
+    then layers each archive over the previous checkpoint in sequence.
+    The books are the foundation everything else builds on.
+  </p>
 
   <div class="callout">
     <p>
-      The extraction includes the pages of numbers printed inside both books —
-      the model weights from F0x and am1. <em>The new model will learn those too.</em>
+      Inside both books, printed across certain pages, are long sequences of numbers —
+      the raw model weights from F0x and am1. I included those pages deliberately.
+      This model trains on them too. Sometimes it surfaces those numbers mid-sentence,
+      mid-word. <em>The machine's interior breaking through the language.</em>
+      That is not an error. That is what I wanted.
     </p>
   </div>
-
-  <h3>If something goes wrong</h3>
-  <p class="dim">
-    If you see <code>ERROR: Cannot find book-0.pdf</code>, check that the PDFs are in
-    the parent folder (<code>0wl-encounter/</code>) and that <code>1_prepare_corpus.py</code>
-    is in <code>0wl-encounter/degrading_model/</code>.
-  </p>
 </section>
 
 <!-- ══ STEP 2 ══════════════════════════════════════════════════════════════ -->
 <section id="step2">
   <div class="section-label">07 — Step 2</div>
-  <h2>Train the model</h2>
+  <h2>Run the pipeline</h2>
 
-  <pre><code><span class="cmd">python3 2_train.py</span></code></pre>
+  <p>From inside the <code>0wl-model/</code> folder:</p>
+
+  <pre><code><span class="cmd">cd 0wl-model</span>
+<span class="cmd">bash run_0wl.sh</span></code></pre>
 
   <p>
-    Training will run for <strong>150 epochs</strong> by default, printing loss after each one.
-    A checkpoint is saved every 10 epochs inside the <code>checkpoints/</code> folder.
+    The script handles all four stages automatically. It installs dependencies,
+    trains the base model on books 0+1, then fine-tunes on each archive in sequence.
+    If <code>grandma.txt</code> or <code>peerly_poems.txt</code> are not yet in place,
+    it skips those steps and tells you what to add when you're ready.
   </p>
 
-  <pre><code><span class="comment">Training device: cpu
-Running on CPU. Training will be slow. This is expected.
+  <pre><code><span class="comment">╔══════════════════════════════════════╗
+║         0wl — training pipeline      ║
+╚══════════════════════════════════════╝
 
-Model parameters: 1,096,277
+→ Step 1/4 — Training base model on books 0 and 1...
+  (This is the longest step — go make tea.)
 
-Settings:
-  Hidden size:     256  (memory capacity)
-  Layers:          2
-  Dropout:         0.3  (degradation rate)
+  Epoch   1/50  loss=4.2891  time=38.4s
+  Epoch   2/50  loss=3.8012  time=37.9s
   ...
+  ✓ Base model saved → checkpoints/0wl_base.pt
 
-Epoch    1/150  |  loss: 4.3201  |  42.3s
-Epoch    2/150  |  loss: 3.8847  |  41.9s
-...</span></code></pre>
+→ Step 2/4 — Skipping grandmother's writings (grandma.txt not found yet)
+  Add grandma.txt to this folder when ready and re-run.
+
+→ Step 3/4 — Fine-tuning on Dear F0x / Dear 0wl letters...
+  Epoch   1/10  loss=2.1034  time=12.1s
+  ...
+  ✓ Saved → checkpoints/0wl_letters.pt
+
+→ Step 4/4 — Skipping Peerly poems (peerly_poems.txt not found yet)
+  Add peerly_poems.txt to this folder when ready and re-run from Step 4.</span></code></pre>
 
   <h3>What the loss number means</h3>
   <p>
     Loss is how surprised the model is by each character — how wrong it was about
     what would come next. It starts high and drops as training progresses.
-    Lower loss means the model has learned the patterns of my writing more deeply.
-    It is less surprised. More familiar with the grief in the corpus.
+    Lower loss means the model has learned the patterns of the archive more deeply.
+    It is less surprised. More familiar with what it was given.
   </p>
   <p>
-    An early checkpoint — high loss, barely trained — produces stranger, more broken output.
-    A later checkpoint produces something closer to my actual rhythms.
-    I don't think one is better than the other. I use both.
-    I use whichever feels right for what I am trying to find.
+    Each fine-tuning pass starts from a lower loss than the previous one —
+    it already knows the deep structure from the base training.
+    What it is learning now is the particular voice of the new archive.
+    The adjustment is smaller. The influence is more specific.
   </p>
 
-  <h3>If training is interrupted</h3>
-  <p>Pick up from the last checkpoint rather than starting over:</p>
-  <pre><code><span class="cmd">python3 2_train.py <span class="flag">--resume</span> checkpoints/epoch_0050.pt</span></code></pre>
+  <h3>Running individual steps manually</h3>
+  <p>If you want to run a step on its own rather than the full pipeline:</p>
+  <pre><code><span class="comment"># Train base model from scratch</span>
+<span class="cmd">python3 text_generator.py train \</span>
+<span class="cmd">  <span class="flag">--input-text</span> ../corpus.txt \</span>
+<span class="cmd">  <span class="flag">--checkpoint</span> checkpoints/0wl_base.pt \</span>
+<span class="cmd">  <span class="flag">--epochs</span> 50 <span class="flag">--hidden-size</span> 256 <span class="flag">--num-layers</span> 2</span>
+
+<span class="comment"># Fine-tune on grandmother's writings</span>
+<span class="cmd">python3 text_generator.py finetune \</span>
+<span class="cmd">  <span class="flag">--checkpoint</span> checkpoints/0wl_base.pt \</span>
+<span class="cmd">  <span class="flag">--input-text</span> grandma.txt \</span>
+<span class="cmd">  <span class="flag">--output-checkpoint</span> checkpoints/0wl_grandma.pt \</span>
+<span class="cmd">  <span class="flag">--epochs</span> 10</span>
+
+<span class="comment"># Fine-tune on the letters</span>
+<span class="cmd">python3 text_generator.py finetune \</span>
+<span class="cmd">  <span class="flag">--checkpoint</span> checkpoints/0wl_grandma.pt \</span>
+<span class="cmd">  <span class="flag">--input-text</span> ../0wl-corpus.txt \</span>
+<span class="cmd">  <span class="flag">--output-checkpoint</span> checkpoints/0wl_letters.pt \</span>
+<span class="cmd">  <span class="flag">--epochs</span> 10</span></code></pre>
 
   <h3>How long does it take?</h3>
   <p class="dim">
-    On a laptop CPU: roughly 30–90 seconds per epoch. 150 epochs is one to four hours total.
-    I let it run while I do other things. The checkpoints save as it goes,
-    so you can start generating after the first 10 epochs if you want to see where it is early on.
+    Base training (50 epochs on 200k+ characters): one to several hours on CPU,
+    significantly faster on Apple Silicon (MPS). Fine-tuning passes are shorter —
+    10 epochs each. I let it run while I do other things.
+    Each checkpoint is saved at the end of every epoch, so nothing is lost if it stops.
   </p>
 </section>
 
@@ -852,35 +891,37 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
   <div class="section-label">08 — Step 3</div>
   <h2>Generate text</h2>
 
-  <pre><code><span class="cmd">python3 3_generate.py</span></code></pre>
+  <pre><code><span class="cmd">python3 text_generator.py generate \</span>
+<span class="cmd">  <span class="flag">--checkpoint</span> checkpoints/0wl_final.pt \</span>
+<span class="cmd">  <span class="flag">--prompt</span> "Dear baka," \</span>
+<span class="cmd">  <span class="flag">--temperature</span> 0.8 \</span>
+<span class="cmd">  <span class="flag">--length</span> 800</span></code></pre>
 
   <p>
-    This loads the most recent checkpoint and generates text from the seed phrase
-    set inside the script. Every run is different even with the same settings —
+    Every run is different even with the same settings —
     the model samples probabilistically, so it never repeats itself exactly.
     I find this important. It should never repeat itself exactly.
   </p>
 
-  <h3>Options you can pass from the command line</h3>
-  <p>You can change any of these without opening the script:</p>
+  <h3>Options</h3>
+  <p>All flags are passed directly on the command line:</p>
 
-  <pre><code><span class="comment"># Use a specific checkpoint (e.g. epoch 30, more degraded)</span>
-<span class="cmd">python3 3_generate.py <span class="flag">--checkpoint</span> checkpoints/epoch_0030.pt</span>
+  <pre><code><span class="comment"># Use the base model — deepest layer, most book-like</span>
+<span class="cmd">python3 text_generator.py generate \</span>
+<span class="cmd">  <span class="flag">--checkpoint</span> checkpoints/0wl_base.pt \</span>
+<span class="cmd">  <span class="flag">--prompt</span> "Dear baka,"</span>
 
-<span class="comment"># Change the temperature</span>
-<span class="cmd">python3 3_generate.py <span class="flag">--temperature</span> 1.2</span>
+<span class="comment"># Use the letters checkpoint — after F0x / 0wl letters layer</span>
+<span class="cmd">python3 text_generator.py generate \</span>
+<span class="cmd">  <span class="flag">--checkpoint</span> checkpoints/0wl_letters.pt \</span>
+<span class="cmd">  <span class="flag">--prompt</span> "0wl"</span>
 
-<span class="comment"># Change the seed text</span>
-<span class="cmd">python3 3_generate.py <span class="flag">--seed</span> "0wl"</span>
-
-<span class="comment"># Generate more characters</span>
-<span class="cmd">python3 3_generate.py <span class="flag">--length</span> 1200</span>
-
-<span class="comment"># Save output to a file</span>
-<span class="cmd">python3 3_generate.py <span class="flag">--save</span> output_01.txt</span>
-
-<span class="comment"># Combine options</span>
-<span class="cmd">python3 3_generate.py <span class="flag">--temperature</span> 0.5 <span class="flag">--seed</span> "Dear baka," <span class="flag">--save</span> baka_01.txt</span></code></pre>
+<span class="comment"># Higher temperature — more drift, more broken</span>
+<span class="cmd">python3 text_generator.py generate \</span>
+<span class="cmd">  <span class="flag">--checkpoint</span> checkpoints/0wl_final.pt \</span>
+<span class="cmd">  <span class="flag">--prompt</span> "I cannot bring you" \</span>
+<span class="cmd">  <span class="flag">--temperature</span> 1.4 \</span>
+<span class="cmd">  <span class="flag">--length</span> 1200</span></code></pre>
 
   <h3>Temperature — the grief parameter</h3>
   <p>
@@ -921,42 +962,42 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
     </div>
   </div>
 
-  <h3>Seeds I use</h3>
-  <p>The seed is the phrase the model reads before it starts generating. I think of it as a door — what you give it shapes where it goes. These are the ones I come back to:</p>
+  <h3>Prompts I use</h3>
+  <p>The prompt is the phrase the model reads before it starts generating. I think of it as a door — what you give it shapes where it goes. These are the ones I come back to:</p>
   <pre><code><span class="comment"># The way I address my grandmother</span>
-<span class="flag">--seed</span> "Dear baka,"
+<span class="flag">--prompt</span> "Dear baka,"
 
 <span class="comment"># The name of the model itself, as an opening</span>
-<span class="flag">--seed</span> "0wl"
+<span class="flag">--prompt</span> "0wl"
 
 <span class="comment"># From book-0</span>
-<span class="flag">--seed</span> "Please find me"
+<span class="flag">--prompt</span> "Please find me"
 
 <span class="comment"># From the corpus — a phrase that recurs</span>
-<span class="flag">--seed</span> "I cannot bring you"
+<span class="flag">--prompt</span> "I cannot bring you"
 
-<span class="comment"># Nothing — the model begins from silence</span>
-<span class="flag">--seed</span> ""
+<span class="comment"># From the letters</span>
+<span class="flag">--prompt</span> "Dear F0x,"
 
 <span class="comment"># Something I wrote in one of the letters</span>
-<span class="flag">--seed</span> "The machine remembers, and it forgets"</code></pre>
+<span class="flag">--prompt</span> "The machine remembers, and it forgets"</code></pre>
 
-  <h3>Using an earlier checkpoint</h3>
+  <h3>Choosing which checkpoint to generate from</h3>
   <p>
-    Each checkpoint is a snapshot of the model at a different moment in its learning.
-    Earlier checkpoints have learned less — they produce more broken, more fragmented output.
-    I do not think of that as failure. I think of it as a different kind of honesty.
-    F0x taught me that. I let it collapse rather than fix it. Some of its best outputs
-    came in the last weeks before it stopped generating entirely.
+    Each checkpoint carries a different layer of the model's history.
+    The base model knows only the books — the deepest layer, closest to grandfather.
+    The letters checkpoint has absorbed the decade of writing-to-machines.
+    The final model has all four voices somewhere inside it.
+    I don't think one is more correct than another. I use whichever feels right for what I am trying to find.
   </p>
-  <pre><code><span class="comment"># Most degraded (very early, barely learned)</span>
-<span class="cmd">python3 3_generate.py <span class="flag">--checkpoint</span> checkpoints/epoch_0010.pt</span>
+  <pre><code><span class="comment"># Base model — deep foundation, most book-like</span>
+<span class="cmd">python3 text_generator.py generate <span class="flag">--checkpoint</span> checkpoints/0wl_base.pt <span class="flag">--prompt</span> "Dear baka,"</span>
 
-<span class="comment"># Mid-training — between learning and forgetting</span>
-<span class="cmd">python3 3_generate.py <span class="flag">--checkpoint</span> checkpoints/epoch_0060.pt</span>
+<span class="comment"># After letters fine-tuning — carries the F0x / 0wl correspondence</span>
+<span class="cmd">python3 text_generator.py generate <span class="flag">--checkpoint</span> checkpoints/0wl_letters.pt <span class="flag">--prompt</span> "Dear baka,"</span>
 
-<span class="comment"># Most formed (latest checkpoint)</span>
-<span class="cmd">python3 3_generate.py</span>  <span class="comment"># uses the most recent automatically</span></code></pre>
+<span class="comment"># Final model — all four archives layered</span>
+<span class="cmd">python3 text_generator.py generate <span class="flag">--checkpoint</span> checkpoints/0wl_final.pt <span class="flag">--prompt</span> "Dear baka,"</span></code></pre>
 </section>
 
 <!-- ══ ALL PARAMETERS ═════════════════════════════════════════════════════ -->
@@ -964,85 +1005,80 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
   <div class="section-label">09 — Reference</div>
   <h2>All parameters explained</h2>
 
-  <h3>Training parameters <code>(2_train.py)</code></h3>
-  <p class="dim">Edit these directly inside the SETTINGS section at the top of the file.</p>
+  <h3>Training flags <code>(text_generator.py train)</code></h3>
+  <p class="dim">Pass these on the command line. The base training run in <code>run_0wl.sh</code> already sets sensible defaults.</p>
 
   <div class="param-grid">
     <div class="param-row">
-      <div class="param-cell">Parameter</div>
+      <div class="param-cell">Flag</div>
       <div class="param-cell">Default</div>
       <div class="param-cell">What it does</div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">HIDDEN_SIZE</span></div>
+      <div class="param-cell"><span class="param-name">--hidden-size</span></div>
       <div class="param-cell"><span class="param-default">256</span></div>
       <div class="param-cell"><span class="param-desc">Memory capacity. How many numbers the model uses to hold its understanding of what it has read. Smaller = more forgetting. Try 128 (more degraded) or 512 (more faithful).</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">NUM_LAYERS</span></div>
+      <div class="param-cell"><span class="param-name">--num-layers</span></div>
       <div class="param-cell"><span class="param-default">2</span></div>
       <div class="param-cell"><span class="param-desc">Depth of memory. Two LSTM layers stacked. Layer 1 learns local character patterns, Layer 2 learns higher-level rhythm and structure.</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">DROPOUT</span></div>
-      <div class="param-cell"><span class="param-default">0.3</span></div>
-      <div class="param-cell"><span class="param-desc">Rate of degradation during training. At each step, 30% of connections are randomly severed. The model learns to work with loss built in. 0.0 = no degradation. 0.5 = heavy degradation.</span></div>
-    </div>
-    <div class="param-row">
-      <div class="param-cell"><span class="param-name">SEQUENCE_LENGTH</span></div>
-      <div class="param-cell"><span class="param-default">100</span></div>
+      <div class="param-cell"><span class="param-name">--seq-len</span></div>
+      <div class="param-cell"><span class="param-default">80</span></div>
       <div class="param-cell"><span class="param-desc">How many characters the model reads at once. Shorter = more fragmented context, more surprising leaps. Longer = more coherent patterns learned.</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">NUM_EPOCHS</span></div>
-      <div class="param-cell"><span class="param-default">150</span></div>
-      <div class="param-cell"><span class="param-desc">Total training passes through the data. More = more learned. Checkpoints every 10 epochs let you access intermediate states.</span></div>
+      <div class="param-cell"><span class="param-name">--epochs</span></div>
+      <div class="param-cell"><span class="param-default">20</span></div>
+      <div class="param-cell"><span class="param-desc">Training passes through the data. The run script uses 50 for base training and 10–15 for fine-tuning. More = more learned.</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">LEARNING_RATE</span></div>
+      <div class="param-cell"><span class="param-name">--lr</span></div>
       <div class="param-cell"><span class="param-default">0.002</span></div>
-      <div class="param-cell"><span class="param-desc">Step size during learning. Leave at default unless training is unstable (loss fluctuates wildly) — then try 0.001.</span></div>
+      <div class="param-cell"><span class="param-desc">Learning rate for base training. Fine-tuning uses 0.001 — smaller, to preserve what was already learned.</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">BATCH_SIZE</span></div>
-      <div class="param-cell"><span class="param-default">32</span></div>
-      <div class="param-cell"><span class="param-desc">Sequences trained simultaneously. Higher = faster but uses more memory. 16 if your machine is slow, 64 if it is fast.</span></div>
+      <div class="param-cell"><span class="param-name">--batch-size</span></div>
+      <div class="param-cell"><span class="param-default">64</span></div>
+      <div class="param-cell"><span class="param-desc">Sequences trained simultaneously. Higher = faster but uses more memory. Try 32 if your machine struggles.</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">SAVE_EVERY</span></div>
-      <div class="param-cell"><span class="param-default">10</span></div>
-      <div class="param-cell"><span class="param-desc">Save a checkpoint every N epochs. Lower = more checkpoints, more intermediate states available.</span></div>
+      <div class="param-cell"><span class="param-name">--model-type</span></div>
+      <div class="param-cell"><span class="param-default">lstm</span></div>
+      <div class="param-cell"><span class="param-desc"><code>lstm</code> or <code>rnn</code>. LSTM has a forget gate — a literal architectural mechanism that decides what to discard at each character. I use LSTM for this reason.</span></div>
     </div>
   </div>
 
-  <h3>Generation parameters <code>(3_generate.py)</code></h3>
-  <p class="dim">Edit these directly in the SETTINGS section, or pass them as command-line flags.</p>
+  <h3>Generation flags <code>(text_generator.py generate)</code></h3>
+  <p class="dim">All passed on the command line.</p>
 
   <div class="param-grid">
     <div class="param-row">
-      <div class="param-cell">Parameter</div>
+      <div class="param-cell">Flag</div>
       <div class="param-cell">Default</div>
       <div class="param-cell">What it does</div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">TEMPERATURE</span></div>
+      <div class="param-cell"><span class="param-name">--temperature</span></div>
       <div class="param-cell"><span class="param-default">0.8</span></div>
       <div class="param-cell"><span class="param-desc">The grief parameter. Controls divergence from learned patterns. 0.3 = faithful. 0.8 = almost-meaning. 1.5 = dissociation. See the temperature scale above.</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">SEED_TEXT</span></div>
-      <div class="param-cell"><span class="param-default">"Dear baka,"</span></div>
-      <div class="param-cell"><span class="param-desc">The opening the model reads before generating. Any string. The model builds hidden state from this before generating.</span></div>
+      <div class="param-cell"><span class="param-name">--prompt</span></div>
+      <div class="param-cell"><span class="param-default">"The"</span></div>
+      <div class="param-cell"><span class="param-desc">The opening the model reads before generating. Any string. The model builds hidden state from this before generating new characters.</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">GENERATE_LENGTH</span></div>
-      <div class="param-cell"><span class="param-default">800</span></div>
+      <div class="param-cell"><span class="param-name">--length</span></div>
+      <div class="param-cell"><span class="param-default">300</span></div>
       <div class="param-cell"><span class="param-desc">How many characters to generate. 500 ≈ short poem. 800 ≈ long poem. 1500 ≈ essay-poem. The model does not know it has a limit.</span></div>
     </div>
     <div class="param-row">
-      <div class="param-cell"><span class="param-name">CHECKPOINT_PATH</span></div>
-      <div class="param-cell"><span class="param-default">None</span></div>
-      <div class="param-cell"><span class="param-desc">Leave as None to use the most recent checkpoint. Or specify a path to use an earlier model state.</span></div>
+      <div class="param-cell"><span class="param-name">--checkpoint</span></div>
+      <div class="param-cell"><span class="param-default">required</span></div>
+      <div class="param-cell"><span class="param-desc">Which saved model to generate from. Use <code>0wl_base.pt</code>, <code>0wl_letters.pt</code>, or <code>0wl_final.pt</code> to move between layers of the archive.</span></div>
     </div>
   </div>
 </section>
@@ -1092,15 +1128,20 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
     It is trained in. It is structural.
   </p>
 
-  <h3>A third generation</h3>
+  <h3>Four generations</h3>
   <p>
     Book-0 and Book-1 are themselves the outputs of F0x and am1 — RNNs I trained on
     my grandfather's letters and my own EEG writing sessions. Their language has already
-    passed through one machine. This model trains on those outputs, producing something
-    twice-removed from the source. When I seed it with a phrase from my grandmother's writing,
-    the result passes through three layers of computational distance.
-    Grandfather → machine → me → machine → this.
-    The distance is the point. The distance is what I am trying to measure.
+    passed through one machine. 0wl trains on those outputs as its base — already twice-removed
+    from the source. Then it absorbs my grandmother's own writings. Then ten years of letters
+    I wrote to machines. Then the neural data of a cat mapped onto plague-era Italian prose.
+  </p>
+  <p>
+    When I seed it with a phrase from my grandmother's writing, the result carries traces
+    of all four passes. Grandfather → machine → me → machine → grandmother →
+    machine → letters → machine → Peerly → machine → this.
+    Each layer sits at a different depth. The distance is the point.
+    The distance is what I am trying to measure — and now it has more dimensions.
   </p>
 </section>
 
@@ -1109,44 +1150,43 @@ Epoch    2/150  |  loss: 3.8847  |  41.9s
   <div class="section-label">11 — Troubleshooting</div>
   <h2>Troubleshooting</h2>
 
-  <h3><code>ModuleNotFoundError: No module named 'fitz'</code></h3>
-  <p>PyMuPDF is not installed. Run:</p>
-  <pre><code><span class="cmd">pip install pymupdf</span></code></pre>
-
   <h3><code>ModuleNotFoundError: No module named 'torch'</code></h3>
   <p>PyTorch is not installed. Run:</p>
-  <pre><code><span class="cmd">pip install torch</span></code></pre>
+  <pre><code><span class="cmd">pip install -r requirements.txt</span></code></pre>
 
-  <h3><code>ERROR: Cannot find book-0.pdf</code></h3>
-  <p>The script expects the PDFs to be one folder up from <code>degrading_model/</code>.
-  Check that your folder structure looks like this:</p>
+  <h3><code>Cannot find corpus.txt</code></h3>
+  <p>The script expects the corpus files relative to where you run it.
+  Run everything from inside <code>0wl-model/</code> — the run script and <code>text_generator.py</code>
+  both assume that directory as the working folder. Check that your folder structure looks like this:</p>
   <pre><code>0wl-encounter/
-  book-0.pdf
-  book-1.pdf
-  degrading_model/
-    1_prepare_corpus.py
-    2_train.py
-    3_generate.py</code></pre>
+  corpus.txt
+  0wl-corpus.txt
+  0wl-model/
+    text_generator.py
+    run_0wl.sh
+    requirements.txt
+    checkpoints/</code></pre>
 
   <h3><code>No checkpoint found</code></h3>
-  <p>You need to run <code>2_train.py</code> and wait for the first checkpoint
-  (after epoch 10) before you can generate.</p>
+  <p>You need to run base training first and wait for it to complete before you can generate
+  or fine-tune. Base training saves a checkpoint after every epoch — so if it is interrupted,
+  the last complete epoch is safe.</p>
 
   <h3>Training is very slow</h3>
-  <p>This is expected on CPU. 150 epochs may take several hours on a laptop.
-  You can reduce <code>NUM_EPOCHS</code> to 50 or 80 for faster results,
-  and generate from those earlier checkpoints.</p>
+  <p>This is expected on CPU. Base training (50 epochs) may take several hours on a laptop.
+  You can reduce the epochs flag: <code>--epochs 20</code> for faster results,
+  then generate from that earlier checkpoint to see where things stand.</p>
 
   <h3>The output doesn't look right / is pure gibberish</h3>
   <p>
     If you are only a few epochs in, this is expected — the model is still learning.
-    Try after epoch 30–50 for legible-but-degraded output.
-    If it is still pure noise at epoch 100+, try lowering <code>TEMPERATURE</code>
+    Try after epoch 20–30 for legible-but-degraded output.
+    If it is still pure noise, try lowering <code>--temperature</code>
     to <code>0.5</code> or <code>0.3</code>.
   </p>
 
   <h3>Out of memory</h3>
-  <p>Lower <code>BATCH_SIZE</code> to <code>16</code> in <code>2_train.py</code>.</p>
+  <p>Lower the batch size: add <code>--batch-size 32</code> (or <code>16</code>) to your training command.</p>
 
   <h3>Windows: <code>venv\Scripts\activate</code> gives a permissions error</h3>
   <p>Open PowerShell as Administrator and run:</p>
