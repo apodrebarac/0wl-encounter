@@ -606,8 +606,94 @@ def prepare_corpus(raw_text):
   </div>
 
   <!-- 10. SITE -->
+  <!-- 10. FINAL 0WL MODEL -->
+  <div class="section" id="owl-final">
+    <h2>10 — Final 0wl model — training pipeline</h2>
+    <p>The final 0wl is trained in four layers, each archive absorbed in sequence. This preserves each voice's weight without any single corpus drowning the others. The model file is at <code>0wl-model/text_generator.py</code> in the repository.</p>
+
+    <h3>The four archives</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Source</th><th>File</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>1 — Base</td><td>Books 0 + 1 (F0x and am)</td><td><code>corpus.txt</code></td><td>Ready</td></tr>
+          <tr><td>2 — Fine-tune</td><td>Grandmother's writings</td><td><code>grandma.txt</code></td><td>Add when ready</td></tr>
+          <tr><td>3 — Fine-tune</td><td>Dear F0x / Dear 0wl letters</td><td><code>0wl-corpus.txt</code></td><td>Ready</td></tr>
+          <tr><td>4 — Fine-tune</td><td>Peerly × Decameron poems</td><td><code>peerly_poems.txt</code></td><td>Add when ready</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Running the full pipeline</h3>
+    <p>A single shell script runs the entire sequence. It skips any archive whose file isn't present yet and picks up from where it left off:</p>
+<pre><code>cd 0wl-model
+bash run_0wl.sh</code></pre>
+
+    <p>Or run each step manually:</p>
+<pre><code># Step 1 — base model on books 0+1
+python3 text_generator.py train \
+  --input-text ../corpus.txt \
+  --checkpoint checkpoints/0wl_base.pt \
+  --epochs 50 --hidden-size 256 --num-layers 2
+
+# Step 2 — fine-tune on grandmother's writings
+python3 text_generator.py finetune \
+  --checkpoint checkpoints/0wl_base.pt \
+  --input-text grandma.txt \
+  --output-checkpoint checkpoints/0wl_grandma.pt \
+  --epochs 10 --lr 0.001
+
+# Step 3 — fine-tune on letters
+python3 text_generator.py finetune \
+  --checkpoint checkpoints/0wl_grandma.pt \
+  --input-text ../0wl-corpus.txt \
+  --output-checkpoint checkpoints/0wl_letters.pt \
+  --epochs 10 --lr 0.001
+
+# Step 4 — fine-tune on Peerly poems
+python3 text_generator.py finetune \
+  --checkpoint checkpoints/0wl_letters.pt \
+  --input-text peerly_poems.txt \
+  --output-checkpoint checkpoints/0wl_final.pt \
+  --epochs 15 --lr 0.001</code></pre>
+
+    <h3>Generating from the final model</h3>
+<pre><code>python3 text_generator.py generate \
+  --checkpoint checkpoints/0wl_final.pt \
+  --prompt "Dear baka," \
+  --temperature 0.8 \
+  --length 800</code></pre>
+
+    <h3>Model architecture</h3>
+    <ul class="spec-list">
+      <li><span class="spec-key">Type</span><span class="spec-val">Character-level LSTM (2 layers, hidden size 256)</span></li>
+      <li><span class="spec-key">Library</span><span class="spec-val">PyTorch ≥ 2.0</span></li>
+      <li><span class="spec-key">Device</span><span class="spec-val">Auto-detects: Apple Silicon MPS → CUDA → CPU</span></li>
+      <li><span class="spec-key">Dropout</span><span class="spec-val">0.3 (degradation trained in structurally)</span></li>
+      <li><span class="spec-key">Fine-tune LR</span><span class="spec-val">0.001 (lower than base to avoid overwriting earlier voices)</span></li>
+      <li><span class="spec-key">Checkpoints</span><span class="spec-val">Saved after every epoch — use any layer as a generation source</span></li>
+      <li><span class="spec-key">Bug fix applied</span><span class="spec-val"><code>model.model_type</code> now saved correctly in finetune (was broken in original)</span></li>
+    </ul>
+
+    <h3>Temperature reference</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Temperature</th><th>Character</th></tr></thead>
+        <tbody>
+          <tr><td><code>0.5</code></td><td>Faithful — close to the corpus, rhythms repeat</td></tr>
+          <tr><td><code>0.8</code></td><td>Almost-meaning — recommended starting point</td></tr>
+          <tr><td><code>1.2</code></td><td>Drifting — language untethering from sense</td></tr>
+          <tr><td><code>1.5</code></td><td>Near-collapse — fragments, reach without arrival</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Corpus balance note</h3>
+    <p>Because each archive is absorbed through a separate fine-tuning pass, smaller corpora (Peerly's 40 poems, grandmother's writings) are not drowned by larger ones. Each voice leaves its trace at a different depth. Books 0+1 are the deep foundation. Grandmother is the next layer. The letters are next. Peerly arrives last and drifts closest to the surface of what the model generates.</p>
+  </div>
+
   <div class="section" id="site">
-    <h2>10 — Website structure</h2>
+    <h2>11 — Website structure</h2>
     <p>All outputs are published at <a href="https://0wlpoetry.com">0wlpoetry.com</a> — hosted on Netlify, deployed from <a href="https://github.com/apodrebarac/0wl-encounter">github.com/apodrebarac/0wl-encounter</a>.</p>
 
     <div class="sitemap">
@@ -616,12 +702,20 @@ def prepare_corpus(raw_text):
         <span class="sitemap-desc">186 poems — typewriter effect, randomised, fade-to-dark on touch</span>
       </div>
       <div class="sitemap-row">
+        <span class="sitemap-url">0wlpoetry.com/letters</span>
+        <span class="sitemap-desc">Dear F0x, Dear 0wl — 48 diary entries, 2018–2023</span>
+      </div>
+      <div class="sitemap-row">
         <span class="sitemap-url">0wlpoetry.com/diagram</span>
         <span class="sitemap-desc">Interactive pipeline — Immigrant and a Tree dual mapping system</span>
       </div>
       <div class="sitemap-row">
         <span class="sitemap-url">0wlpoetry.com/peerly</span>
         <span class="sitemap-desc">Peerly × Decameron — diagram + 40 poems</span>
+      </div>
+      <div class="sitemap-row">
+        <span class="sitemap-url">0wlpoetry.com/degrading_model</span>
+        <span class="sitemap-desc">The Degrading Model — concept, scripts, parameters</span>
       </div>
       <div class="sitemap-row">
         <span class="sitemap-url">0wlpoetry.com/documentation</span>
@@ -640,7 +734,7 @@ def prepare_corpus(raw_text):
 
   <p class="footer">
     © Ami Podrebarac · <a href="https://0wlpoetry.com">0wlpoetry.com</a> · <em>The Sensuality of Data</em>, PhD research, Central Saint Martins / CCI, UAL<br>
-    Document prepared May 2026 · To be updated as the practice continues
+    Document updated May 2026 · To be updated as the practice continues
   </p>
 
 </div>
